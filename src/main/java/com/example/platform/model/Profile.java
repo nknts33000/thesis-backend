@@ -9,7 +9,7 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long profile_id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id") //(foreign key referencing Users)
     private User user;
     private String headline;

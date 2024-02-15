@@ -17,11 +17,11 @@ public class Connection {
         return id;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user1_id",referencedColumnName = "id")
     private User user1;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user2_id",referencedColumnName = "id")
     private User user2;
 

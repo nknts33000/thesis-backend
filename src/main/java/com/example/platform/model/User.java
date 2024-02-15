@@ -22,12 +22,26 @@ public class User {
     private String location;
     @Column(nullable = false)
     private Date join_date;
-    @OneToOne(mappedBy = "users")
+    @OneToOne(mappedBy = "user")
     private Profile profile;
-
-    @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user1")
     private List<Connection> connectionList=new ArrayList<>();///when the user initiated the connection(1st user column in connection schema)
 
-    @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user2")
     private List<Connection> connectionOf=new ArrayList<>();///when the user accepted the connection(2nd user column in connection schema)
+
+    @OneToMany(mappedBy = "user")
+    private List<Education> education;
+
+    @OneToMany(mappedBy = "user")
+    private List<Experience> experiences;
+
+    @OneToMany(mappedBy = "user")
+    private List<Skill> skills;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private List<Like> likes;
 }
