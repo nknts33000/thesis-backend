@@ -44,4 +44,10 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Like> likes;
+
+    @OneToMany(mappedBy = "user")
+    private List<Share> shares;
+
+    @OneToMany(mappedBy = "user")
+    private List<Group> groupsOwned;
 }
