@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -24,6 +25,10 @@ public class User {
     private Date join_date;
     @OneToOne(mappedBy = "user")
     private Profile profile;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
+
     @OneToMany(mappedBy = "user1")
     private List<Connection> connectionList=new ArrayList<>();///when the user initiated the connection(1st user column in connection schema)
 
@@ -39,8 +44,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Skill> skills;
 
-    @OneToMany(mappedBy = "user")
-    private List<Post> posts;
 
     @OneToMany(mappedBy = "user")
     private List<Like> likes;
@@ -48,6 +51,17 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Share> shares;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "owner")
     private List<Group> groupsOwned;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Comment> comments;
+
+    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "GROUP_MEMBERS",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id"))
+    private Set<User> users;
+
 }

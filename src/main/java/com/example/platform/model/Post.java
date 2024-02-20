@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Post {
@@ -26,4 +27,7 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<Share> shares;
+
+    @OneToMany(mappedBy = "post")
+    private Set<Comment> comments;
 }

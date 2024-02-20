@@ -3,8 +3,10 @@ package com.example.platform.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.Set;
 
 @Entity
+@Table(name = "all_groups")
 public class Group {
 
     @Id
@@ -13,8 +15,14 @@ public class Group {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    private User owner;
 
+    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "GROUP_MEMBERS",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "id"))
+    private Set<User> users;
     @Column(nullable = false)
     private String group_name;
     private String description;
