@@ -15,6 +15,5 @@ public class UserController {
         this.userService=userService;
     }
 
-    /*@PostMapping("/insert")
-    public */
+
 }
