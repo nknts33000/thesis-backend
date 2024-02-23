@@ -14,7 +14,19 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<User,Long> {
     public Optional<User> findByEmail(String email);
 
-    /*@Modifying
-    @Query("update User u set u.firstname = ?1, u.lastname = ?2 where u.email = ?3")
-    void setUserInfoById(String firstname, String lastname, Integer userId);*/
+    @Modifying
+    @Query("update User u set u.location = ?1,u.name=?2,u.password=?3 where u.email = ?4")
+    void updateUser(String location,String name,String password,String email);
+
+    @Modifying
+    @Query("update User u set u.location = ?1 where u.email = ?2")
+    void updateLocation(String location,String email);
+
+    @Modifying
+    @Query("update User u set u.name = ?1 where u.email = ?2")
+    void updateName(String name,String email);
+
+    @Modifying
+    @Query("update User u set u.password = ?1 where u.email = ?2")
+    void updatePassword(String password,String email);
 }

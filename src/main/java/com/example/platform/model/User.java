@@ -1,14 +1,13 @@
 package com.example.platform.model;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -27,8 +26,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String name;
     private String location;
-    //@Column(nullable = false)
-    private LocalDateTime join_date;
+    private final LocalDateTime join_date= LocalDateTime.now();
 
 
     public User() {
@@ -40,7 +38,7 @@ public class User implements Serializable {
         this.password= password;
         this.name=name;
         this.location=location;
-        this.join_date= LocalDateTime.now();
+        //this.join_date= LocalDateTime.now();
     }
 
     public User(String email,String password,String name){
@@ -48,7 +46,7 @@ public class User implements Serializable {
         this.email=email;
         this.password= password;
         this.name=name;
-        this.join_date= LocalDateTime.now();
+        //this.join_date= LocalDateTime.now();
 
     }
 

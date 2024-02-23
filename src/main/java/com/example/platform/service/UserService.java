@@ -30,10 +30,42 @@ public class UserService {
 
     public User getUser(String email) throws UserNotFoundException {
         return userRepo.findByEmail(email).orElseThrow(UserNotFoundException::new);
-
     }
 
-    public void updateUser(String email,User user){
-        userRepo.save(user);
+    public void update(String email,User user) throws UserNotFoundException {
+        if(userRepo.findByEmail(email).isPresent()){
+            userRepo.updateUser(user.getLocation(),user.getName(), user.getPassword(), user.getEmail());
+        }
+        else{
+            throw new UserNotFoundException();
+        }
     }
+
+    public void updateUserName(String email,User user) throws UserNotFoundException {
+        if(userRepo.findByEmail(email).isPresent()){
+            userRepo.updateName(user.getName(),user.getEmail());
+        }
+        else{
+            throw new UserNotFoundException();
+        }
+    }
+
+    public void updateUserLocation(String email,User user) throws UserNotFoundException {
+        if(userRepo.findByEmail(email).isPresent()){
+            userRepo.updateLocation(user.getLocation(),user.getEmail());
+        }
+        else{
+            throw new UserNotFoundException();
+        }
+    }
+
+    public void updateUserPassword(String email,User user) throws UserNotFoundException {
+        if(userRepo.findByEmail(email).isPresent()){
+            userRepo.updatePassword(user.getPassword(),user.getEmail());
+        }
+        else{
+            throw new UserNotFoundException();
+        }
+    }
+
 }

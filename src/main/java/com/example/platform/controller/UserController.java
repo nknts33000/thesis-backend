@@ -1,6 +1,7 @@
 package com.example.platform.controller;
 
 import com.example.platform.exceptions.UserExistsException;
+import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,18 +17,34 @@ public class UserController {
     UserController(UserService userService){
        this.userService=userService;
     }
-    // @RequestParam("email") String email,@RequestParam("password") String password,
-    //                         @RequestParam("name") String name,
-    //                         @RequestParam(value="location",required = false) String location
-    //
-    //                         @RequestParam("name") String name,@RequestParam(value="location",required = false) String location
-    //
-    @ResponseBody
-    @PostMapping
-    public void Register(@RequestBody User user)throws UserExistsException {
-      userService.addUser(user);
 
+    @ResponseBody
+    @PostMapping("/register")
+    public void Register(@RequestBody User user)throws UserExistsException {
+        userService.addUser(user);
     }
 
+    @ResponseBody
+    @PutMapping("/update")
+    public void Update(@RequestBody User user) throws UserNotFoundException {
+        userService.update(user.getEmail(),user);
+    }
 
+    @ResponseBody
+    @PutMapping("/update/name")
+    public void UpdateName(@RequestBody User user) throws UserNotFoundException {
+        userService.updateUserName(user.getEmail(),user);
+    }
+
+    @ResponseBody
+    @PutMapping("/update/location")
+    public void UpdateLocation(@RequestBody User user) throws UserNotFoundException {
+        userService.updateUserLocation(user.getEmail(),user);
+    }
+
+    @ResponseBody
+    @PutMapping("/update/password")
+    public void UpdatePassword(@RequestBody User user) throws UserNotFoundException {
+        userService.updateUserPassword(user.getEmail(),user);
+    }
 }
