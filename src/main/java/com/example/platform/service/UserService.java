@@ -4,13 +4,19 @@ import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
 import com.example.platform.repo.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 public class UserService {
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
+
+    @Autowired
+    public UserService(UserRepo userRepo){
+        this.userRepo=userRepo;
+    }
 
     public void addUser(User user) throws UserExistsException {
         boolean userExists=userRepo.findByEmail(user.getEmail()).isPresent();
@@ -31,4 +37,3 @@ public class UserService {
         userRepo.save(user);
     }
 }
-

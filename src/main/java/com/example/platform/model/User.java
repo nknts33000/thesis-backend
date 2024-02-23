@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -25,8 +27,31 @@ public class User {
     @Column(nullable = false)
     private String name;
     private String location;
-    @Column(nullable = false)
-    private Date join_date;
+    //@Column(nullable = false)
+    private LocalDateTime join_date;
+
+
+    public User() {
+        System.out.println("hello");
+    }
+
+    public User(String email,String password,String name,String location){
+        this.email=email;
+        this.password= password;
+        this.name=name;
+        this.location=location;
+        this.join_date= LocalDateTime.now();
+    }
+
+    public User(String email,String password,String name){
+        System.out.println("hello2");
+        this.email=email;
+        this.password= password;
+        this.name=name;
+        this.join_date= LocalDateTime.now();
+
+    }
+
     @OneToOne(mappedBy = "user")
     private Profile profile;
 
@@ -67,5 +92,6 @@ public class User {
             joinColumns = @JoinColumn(name = "id"),
             inverseJoinColumns = @JoinColumn(name = "group_id"))
     private Set<User> users;
+
 
 }
