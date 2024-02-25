@@ -1,15 +1,24 @@
 package com.example.platform.model;
 
+import com.example.platform.repo.UserRepo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.FluentQuery;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 @Entity
 @Getter
@@ -30,7 +39,7 @@ public class User implements Serializable {
 
 
     public User() {
-        System.out.println("hello");
+
     }
 
     public User(String email,String password,String name,String location){
@@ -38,7 +47,7 @@ public class User implements Serializable {
         this.password= password;
         this.name=name;
         this.location=location;
-        //this.join_date= LocalDateTime.now();
+
     }
 
     public User(String email,String password,String name){
@@ -46,7 +55,7 @@ public class User implements Serializable {
         this.email=email;
         this.password= password;
         this.name=name;
-        //this.join_date= LocalDateTime.now();
+
 
     }
 

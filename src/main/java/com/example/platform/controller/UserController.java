@@ -47,4 +47,16 @@ public class UserController {
     public void UpdatePassword(@RequestBody User user) throws UserNotFoundException {
         userService.updateUserPassword(user.getEmail(),user);
     }
+
+    @ResponseBody
+    @PutMapping("/update/email")
+    public void UpdateEmail(@RequestBody User user) throws UserNotFoundException {
+        //userService.updateUserEmail(user.getEmail(),user);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/delete")
+    public void deleteUser(@RequestBody User user){
+        userService.deleteUserByEmail(user);
+    }
 }

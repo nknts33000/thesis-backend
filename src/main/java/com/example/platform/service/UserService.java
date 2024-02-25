@@ -7,6 +7,7 @@ import com.example.platform.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +17,15 @@ public class UserService {
     @Autowired
     public UserService(UserRepo userRepo){
         this.userRepo=userRepo;
+    }
+
+
+    public User findUser(Long id){
+        return userRepo.findUserById(id);
+    }
+
+    public List<User> findAllUsers(){
+        return userRepo.findAll();
     }
 
     public void addUser(User user) throws UserExistsException {
@@ -67,5 +77,26 @@ public class UserService {
             throw new UserNotFoundException();
         }
     }
+
+    /*
+    * gets the entity from the front end with its id and new email inside.
+    * runs an update query based on the id and
+    * */
+
+    public void updateUserEmail(Long id,User user) throws UserNotFoundException {
+        Optional<User> updated_user =userRepo.findById(id);
+        if(updated_user.isPresent()){
+            userRepo.updateEmail(user.getEmail(),id);
+        }
+        else{
+            throw new UserNotFoundException();
+        }
+    }
+
+    public void deleteUserByEmail(User user){
+        userRepo.deleteByEmail(user.getEmail());
+    }
+
+
 
 }
