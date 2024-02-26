@@ -51,7 +51,7 @@ public class UserController {
     @ResponseBody
     @PutMapping("/update/email")
     public void UpdateEmail(@RequestBody User user) throws UserNotFoundException {
-        //userService.updateUserEmail(user.getEmail(),user);
+        userService.updateUserEmail(user.getId(),user);
     }
 
     @ResponseBody
