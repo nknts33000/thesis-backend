@@ -31,9 +31,15 @@ public class UserController {
     }
 
     @ResponseBody
-    @PutMapping("/update/name")
+    @PutMapping("/update/firstname")
     public void UpdateName(@RequestBody User user) throws UserNotFoundException {
         userService.updateUserName(user.getEmail(),user);
+    }
+
+    @ResponseBody
+    @PutMapping("/update/lastname")
+    public void UpdateLastName(@RequestBody User user) throws UserNotFoundException {
+        userService.updateLastName(user.getEmail(),user);
     }
 
     @ResponseBody

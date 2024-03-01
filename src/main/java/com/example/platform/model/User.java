@@ -4,21 +4,13 @@ import com.example.platform.repo.UserRepo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.FluentQuery;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+
 
 @Entity
 @Getter
@@ -33,7 +25,9 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String name;
+    private String firstname;
+    @Column(nullable = false)
+    private String lastname;
     private String location;
     private final LocalDateTime join_date= LocalDateTime.now();
 
@@ -42,20 +36,21 @@ public class User implements Serializable {
 
     }
 
-    public User(String email,String password,String name,String location){
+    public User(String email,String password,String firstname,String lastname,String location){
         this.email=email;
         this.password= password;
-        this.name=name;
+        this.lastname=lastname;
+        this.firstname=firstname;
         this.location=location;
 
     }
 
-    public User(String email,String password,String name){
-        System.out.println("hello2");
+    public User(String email,String password,String firstname,String lastname){
+
         this.email=email;
         this.password= password;
-        this.name=name;
-
+        this.firstname=firstname;
+        this.lastname=lastname;
 
     }
 

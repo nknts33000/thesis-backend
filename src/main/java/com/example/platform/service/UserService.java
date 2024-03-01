@@ -44,7 +44,7 @@ public class UserService {
 
     public void update(String email,User user) throws UserNotFoundException {
         if(userRepo.findByEmail(email).isPresent()){
-            userRepo.updateUser(user.getLocation(),user.getName(), user.getPassword(), user.getEmail());
+            userRepo.updateUser(user.getLocation(),user.getFirstname(), user.getPassword(), user.getEmail(),user.getLastname());
         }
         else{
             throw new UserNotFoundException();
@@ -53,7 +53,16 @@ public class UserService {
 
     public void updateUserName(String email,User user) throws UserNotFoundException {
         if(userRepo.findByEmail(email).isPresent()){
-            userRepo.updateName(user.getName(),user.getEmail());
+            userRepo.updateName(user.getFirstname(),user.getEmail());
+        }
+        else{
+            throw new UserNotFoundException();
+        }
+    }
+
+    public void updateLastName(String email,User user) throws UserNotFoundException {
+        if(userRepo.findByEmail(email).isPresent()){
+            userRepo.updateLastName(user.getLastname(),user.getEmail());
         }
         else{
             throw new UserNotFoundException();

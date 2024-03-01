@@ -17,16 +17,20 @@ public interface UserRepo extends JpaRepository<User,Long> {
     public User findUserById(Long id);
 
     @Modifying
-    @Query("update User u set u.location = ?1,u.name=?2,u.password=?3 where u.email = ?4")
-    void updateUser(String location,String name,String password,String email);
+    @Query("update User u set u.location = ?1,u.firstname=?2,u.lastname=?5,u.password=?3 where u.email = ?4")
+    void updateUser(String location,String name,String password,String email,String lastname);
 
     @Modifying
     @Query("update User u set u.location = ?1 where u.email = ?2")
     void updateLocation(String location,String email);
 
     @Modifying
-    @Query("update User u set u.name = ?1 where u.email = ?2")
-    void updateName(String name,String email);
+    @Query("update User u set u.firstname = ?1 where u.email = ?2")
+    void updateName(String firstname,String email);
+
+    @Modifying
+    @Query("update User u set u.lastname = ?1 where u.email = ?2")
+    void updateLastName(String lastname,String email);
 
     @Modifying
     @Query("update User u set u.password = ?1 where u.email = ?2")
