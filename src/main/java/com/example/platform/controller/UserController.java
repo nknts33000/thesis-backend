@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin
 public class UserController {
 
     private final UserService userService;
@@ -21,6 +22,11 @@ public class UserController {
     @ResponseBody
     @PostMapping("/register")
     public void Register(@RequestBody User user)throws UserExistsException {
+
+        System.out.println(user.getEmail());
+        System.out.println(user.getPassword());
+        System.out.println(user.getFirstname());
+        System.out.println(user.getLastname());
         userService.addUser(user);
     }
 
