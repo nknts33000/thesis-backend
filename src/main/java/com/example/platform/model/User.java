@@ -29,6 +29,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String lastname;
     private String location;
+    private String roles;
     private final LocalDateTime join_date= LocalDateTime.now();
 
 

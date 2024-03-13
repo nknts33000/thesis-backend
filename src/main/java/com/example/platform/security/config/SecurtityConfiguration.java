@@ -1,5 +1,6 @@
 package com.example.platform.security.config;
 
+import com.example.platform.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,19 +11,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import com.mojang.authentication.service.UserDetailsServiceImpl;
 
 
 @Configuration
 @EnableWebSecurity
 public class SecurtityConfiguration {
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
@@ -57,7 +58,6 @@ public class SecurtityConfiguration {
 //            our public endpoints
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/authentication-docs/**").permitAll()
 //            our private endpoints
                         .anyRequest().authenticated())
                 .authenticationManager(authenticationManager)

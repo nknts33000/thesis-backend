@@ -23,10 +23,6 @@ public class UserController {
     @PostMapping("/register")
     public void Register(@RequestBody User user)throws UserExistsException {
 
-        System.out.println(user.getEmail());
-        System.out.println(user.getPassword());
-        System.out.println(user.getFirstname());
-        System.out.println(user.getLastname());
         userService.addUser(user);
     }
 
