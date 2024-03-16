@@ -1,7 +1,7 @@
 package com.example.platform.model;
 
 import jakarta.persistence.*;
-import org.springframework.data.repository.cdi.Eager;
+
 
 @Entity
 public class Skill {
