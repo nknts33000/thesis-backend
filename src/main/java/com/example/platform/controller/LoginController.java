@@ -6,14 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 public class LoginController {
 
     @GetMapping("/login")
-    public ResponseEntity login(HttpServletResponse response){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "localhost:3000/");
-        return new ResponseEntity(headers, HttpStatus.FOUND);
+    public ModelAndView login(HttpServletResponse response){
+        return new ModelAndView("redirect:http://localhost:3000");
     }
 }

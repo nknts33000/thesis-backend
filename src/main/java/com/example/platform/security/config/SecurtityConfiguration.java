@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -60,10 +61,26 @@ public class SecurtityConfiguration {
                 )
                 .authenticationManager(authenticationManager)
                 .build();
+        /*return http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .authorizeHttpRequests(request -> request.requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/anonymous*")
+                        .anonymous()
+                        .requestMatchers(HttpMethod.GET, "/index*", "/static/**", "/*.js", "/*.json", "/*.ico", "/rest")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
+                .formLogin(form -> form.loginPage("/index.html")
+                        .loginProcessingUrl("/perform_login")
+                        .defaultSuccessUrl("/homepage.html", true)
+                        .failureUrl("/index.html?error=true"))
+                .logout(logout -> logout.logoutUrl("/perform_logout")
+                        .deleteCookies("JSESSIONID"))
+                .build();*/
 
     }
 
-    @Bean
+    /*@Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
@@ -71,7 +88,7 @@ public class SecurtityConfiguration {
                 registry.addMapping("/**").allowedOrigins("http://localhost:3000/");
             }
         };
-    }
+    }*/
 
 
     @Bean
