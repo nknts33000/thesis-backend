@@ -5,13 +5,16 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
 import com.example.platform.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepo userRepo;
 
     @Autowired
@@ -105,6 +108,15 @@ public class UserService {
     public void deleteUserByEmail(User user){
         userRepo.deleteByEmail(user.getEmail());
     }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> user = userRepo.findByEmail(email);
+        return user.map(CustomUserDetails::new)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found " + email));
+
+    }
+
 
    /////
 

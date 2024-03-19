@@ -20,13 +20,6 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping("/register")
-    public void Register(@RequestBody User user)throws UserExistsException {
-
-        userService.addUser(user);
-    }
-
-    @ResponseBody
     @PutMapping("/update")
     public void Update(@RequestBody User user) throws UserNotFoundException {
         userService.update(user.getEmail(),user);
