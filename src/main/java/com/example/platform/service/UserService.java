@@ -1,5 +1,8 @@
 package com.example.platform.service;
 
+import com.example.platform.dto.LoginDTO;
+import com.example.platform.dto.RegistrationDTO;
+import com.example.platform.exceptions.InvalidCredentialsException;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
@@ -8,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.CharBuffer;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,10 +22,15 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
     private final UserRepo userRepo;
 
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserService(UserRepo userRepo){
+    public UserService(UserRepo userRepo,PasswordEncoder passwordEncoder){
+
         this.userRepo=userRepo;
+        this.passwordEncoder=passwordEncoder;
     }
+
 
 
     public User findUser(Long id){
@@ -31,9 +41,30 @@ public class UserService implements UserDetailsService {
         return userRepo.findAll();
     }
 
-    public void addUser(User user) throws UserExistsException {
-        boolean userExists=userRepo.findByEmail(user.getEmail()).isPresent();
+    public User login(LoginDTO loginDTO) throws UserNotFoundException, InvalidCredentialsException {
+        User user= userRepo.findByEmail(loginDTO.getEmail()).orElseThrow(
+                UserNotFoundException::new
+        );
+
+        if(user.getPassword().equals(passwordEncoder.encode(CharBuffer.wrap(loginDTO.getPassword())))){
+            return user;
+        }
+        else {
+            throw new InvalidCredentialsException("wrong password");
+        }
+
+    }
+
+    public void addUser(RegistrationDTO registrationDTO) throws UserExistsException {
+        boolean userExists=userRepo.findByEmail(registrationDTO.getEmail()).isPresent();
         if(!userExists){
+            User user=new User(
+                    registrationDTO.getEmail()
+                    ,passwordEncoder.encode(CharBuffer.wrap(registrationDTO.getPassword()))//registrationDTO.getPassword()
+                    ,registrationDTO.getFirstname()
+                    ,registrationDTO.getLastname()
+                    ,registrationDTO.getLocation()
+            );
             userRepo.save(user);
         }
         else{
@@ -112,7 +143,8 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> user = userRepo.findByEmail(email);
-        return user.map(CustomUserDetails::new)
+        //verify with password here
+        return user//.map()
                 .orElseThrow(() -> new UsernameNotFoundException("user not found " + email));
 
     }

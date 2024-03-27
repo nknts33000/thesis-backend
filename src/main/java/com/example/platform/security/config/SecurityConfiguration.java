@@ -3,9 +3,12 @@ package com.example.platform.security.config;
 import com.example.platform.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,15 +17,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+//@EnableAutoConfiguration
 public class SecurityConfiguration {
     private UserService userService;
-
-    private final UserAuthenticationEntryPoint userAuthenticationEntryPoint;
+    private UserAuthenticationProvider userAuthenticationProvider;
+    private UserAuthenticationEntryPoint userAuthenticationEntryPoint;
 
     @Autowired
     SecurityConfiguration(UserService userService,UserAuthenticationEntryPoint userAuthenticationEntryPoint) {
@@ -38,20 +43,20 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
 
-        return http
+
+        http.exceptionHandling(Customizer.withDefaults()).httpBasic(Customizer.withDefaults());//.authenticationEntryPoint(userAuthenticationEntryPoint);
+        http.addFilterBefore(new JwtAuthFilter(), BasicAuthenticationFilter.class);
+
+        http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        //.requestMatchers("/login").permitAll() // Permit access to "/login" for all HTTP methods
+                        .requestMatchers("/login","/register").permitAll() // Permit access to "/login" for all HTTP methods
                         .anyRequest().authenticated()
                 )
-//                .formLogin(form -> form
-//                        .loginPage("/login") // Specify the login page URL
-//                        .permitAll()
-//                )
-                .authenticationManager(authenticationManager)
-                .build();
+                .authenticationManager(authenticationManager);
+                return http.build();
     }
 
     @Bean

@@ -1,20 +1,22 @@
 package com.example.platform.controller;
 
+import com.example.platform.dto.LoginDTO;
+import com.example.platform.dto.RegistrationDTO;
+import com.example.platform.dto.UserDTO;
+import com.example.platform.exceptions.InvalidCredentialsException;
 import com.example.platform.exceptions.UserExistsException;
+import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
+import com.example.platform.security.config.UserAuthenticationProvider;
 import com.example.platform.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 public class AuthController {
 
     private final UserService userService;
+
 
     @Autowired
     AuthController(UserService userService){
@@ -23,13 +25,22 @@ public class AuthController {
 
     @ResponseBody
     @PostMapping("/login")
-    public void login(@RequestBody User user) throws UserExistsException {
-        userService.addUser(user);
+    public UserDTO login(@RequestBody LoginDTO loginDTO) throws UserExistsException, UserNotFoundException, InvalidCredentialsException {
+        User user=userService.login(loginDTO);
+        UserAuthenticationProvider userAuthenticationProvider=new UserAuthenticationProvider();
+        UserDTO userDTO=new UserDTO(
+                user.getEmail(),
+                user.getFirstname(),
+                user.getLastname(),
+                userAuthenticationProvider.createToken(user.getEmail())
+        );
+
+        return userDTO;
     }
 
     @ResponseBody
     @PostMapping("/register")
-    public void register(@RequestBody User user) throws UserExistsException {
-        userService.addUser(user);
+    public void register(@RequestBody RegistrationDTO registrationDTO) throws UserExistsException {
+        userService.addUser(registrationDTO);
     }
 }
