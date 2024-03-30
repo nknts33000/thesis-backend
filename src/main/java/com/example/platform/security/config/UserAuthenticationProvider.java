@@ -24,30 +24,36 @@ import java.util.Date;
 @Component
 public class UserAuthenticationProvider {
 
-    @Value("${security.jwt.token.secret-key:secret-value}")// see https://stackoverflow.com/questions/66608801/this-annotation-is-not-applicable-to-target-local-variable
-    private String secretKey;
+    //@Value("${security.jwt.token.secret-key:secret-value}")// see https://stackoverflow.com/questions/66608801/this-annotation-is-not-applicable-to-target-local-variable
+    private String secretKey="${security.jwt.token.secret-key:secret-value}";
+    private String secondKey;
     @Autowired
     private UserService userService;
 
-    @PostConstruct
-    protected void init() {
+    //@PostConstruct
+    public String SecretValue() {
         // Encoding the secret key using Base64
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        //secretKey =
+        return Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
-
 
     public String createToken(String email){
         Date now=new Date();
         Date validity=new Date(now.getTime()+3_600_000);
+        secondKey=SecretValue();
+        System.out.println("the key is:"+secondKey);
+
         return JWT.create()
                 .withIssuer(email)
                 .withIssuedAt(now)
                 .withExpiresAt(validity)
-                .sign(Algorithm.HMAC256(secretKey));
+                .sign(Algorithm.HMAC256(secondKey));
     }
 
     public UsernamePasswordAuthenticationToken validateToken(String token) throws UserNotFoundException {
-        JWTVerifier verifier=JWT.require(Algorithm.HMAC256(secretKey)).build();
+
+        System.out.println("validate :"+secondKey);
+        JWTVerifier verifier=JWT.require(Algorithm.HMAC256(secondKey)).build();
 
         DecodedJWT decodedJWT= verifier.verify(token);
 

@@ -2,11 +2,13 @@ package com.example.platform.service;
 
 import com.example.platform.dto.LoginDTO;
 import com.example.platform.dto.RegistrationDTO;
+import com.example.platform.dto.UserDTO;
 import com.example.platform.exceptions.InvalidCredentialsException;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
 import com.example.platform.repo.UserRepo;
+import com.example.platform.security.config.UserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,7 +48,7 @@ public class UserService implements UserDetailsService {
                 UserNotFoundException::new
         );
 
-        if(user.getPassword().equals(passwordEncoder.encode(CharBuffer.wrap(loginDTO.getPassword())))){
+        if(passwordEncoder.matches(loginDTO.getPassword(),user.getPassword())){
             return user;
         }
         else {
@@ -56,6 +58,7 @@ public class UserService implements UserDetailsService {
     }
 
     public void addUser(RegistrationDTO registrationDTO) throws UserExistsException {
+
         boolean userExists=userRepo.findByEmail(registrationDTO.getEmail()).isPresent();
         if(!userExists){
             User user=new User(
@@ -136,8 +139,9 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void deleteUserByEmail(User user){
-        userRepo.deleteByEmail(user.getEmail());
+    public void deleteUserByEmail(UserDTO userdto){
+
+        userRepo.deleteByEmail(userdto.getEmail());
     }
 
     @Override

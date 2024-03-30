@@ -32,6 +32,7 @@ public class User implements Serializable, UserDetails {
     private String lastname;
     private String location;
     private String roles;
+    private String salt;
     private final LocalDateTime join_date= LocalDateTime.now();
 
 
@@ -47,6 +48,7 @@ public class User implements Serializable, UserDetails {
         this.lastname=lastname;
         this.firstname=firstname;
         this.location=location;
+
 
     }
 

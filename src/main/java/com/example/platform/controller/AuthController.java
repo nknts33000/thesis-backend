@@ -41,6 +41,7 @@ public class AuthController {
     @ResponseBody
     @PostMapping("/register")
     public void register(@RequestBody RegistrationDTO registrationDTO) throws UserExistsException {
+
         userService.addUser(registrationDTO);
     }
 }
