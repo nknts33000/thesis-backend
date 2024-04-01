@@ -10,6 +10,8 @@ import com.example.platform.model.User;
 import com.example.platform.security.config.UserAuthenticationProvider;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,8 +27,9 @@ public class AuthController {
 
     @ResponseBody
     @PostMapping("/login")
-    public UserDTO login(@RequestBody LoginDTO loginDTO) throws UserExistsException, UserNotFoundException, InvalidCredentialsException {
+    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO) throws UserExistsException, UserNotFoundException, InvalidCredentialsException {
         User user=userService.login(loginDTO);
+        System.out.println("user mail in login controller:"+user.getEmail());
         UserAuthenticationProvider userAuthenticationProvider=new UserAuthenticationProvider();
         UserDTO userDTO=new UserDTO(
                 user.getEmail(),
@@ -35,7 +38,7 @@ public class AuthController {
                 userAuthenticationProvider.createToken(user.getEmail())
         );
 
-        return userDTO;
+        return ResponseEntity.ok(userDTO);
     }
 
     @ResponseBody

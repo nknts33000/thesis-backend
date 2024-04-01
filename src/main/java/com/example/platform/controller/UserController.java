@@ -1,5 +1,6 @@
 package com.example.platform.controller;
 
+import com.example.platform.dto.RegistrationDTO;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
@@ -22,8 +23,9 @@ public class UserController {
 
     @ResponseBody
     @PutMapping("/update")
-    public void Update(@RequestBody User user) throws UserNotFoundException {
-        userService.update(user.getEmail(),user);
+    public void Update(@RequestBody RegistrationDTO registrationDTO) throws UserNotFoundException {
+
+        userService.update(registrationDTO.getEmail(),registrationDTO);
     }
 
     @ResponseBody

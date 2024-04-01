@@ -27,8 +27,13 @@ public class UserAuthenticationProvider {
     //@Value("${security.jwt.token.secret-key:secret-value}")// see https://stackoverflow.com/questions/66608801/this-annotation-is-not-applicable-to-target-local-variable
     private String secretKey="${security.jwt.token.secret-key:secret-value}";
     private String secondKey;
-    @Autowired
+
     private UserService userService;
+
+    @Autowired
+    public UserAuthenticationProvider(UserService userService){
+        this.userService=userService;
+    }
 
     //@PostConstruct
     public String SecretValue() {
@@ -41,22 +46,22 @@ public class UserAuthenticationProvider {
         Date now=new Date();
         Date validity=new Date(now.getTime()+3_600_000);
         secondKey=SecretValue();
-        System.out.println("the key is:"+secondKey);
 
         return JWT.create()
                 .withIssuer(email)
+                .withSubject(email)
                 .withIssuedAt(now)
                 .withExpiresAt(validity)
                 .sign(Algorithm.HMAC256(secondKey));
     }
 
     public UsernamePasswordAuthenticationToken validateToken(String token) throws UserNotFoundException {
+        secondKey=SecretValue();
 
-        System.out.println("validate :"+secondKey);
         JWTVerifier verifier=JWT.require(Algorithm.HMAC256(secondKey)).build();
 
         DecodedJWT decodedJWT= verifier.verify(token);
-
+        System.out.println("email:"+decodedJWT.getSubject());
         User user = userService.getUser(decodedJWT.getSubject());
 
         return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());

@@ -30,9 +30,11 @@ public class SecurityConfiguration {
     private UserAuthenticationEntryPoint userAuthenticationEntryPoint;
 
     @Autowired
-    SecurityConfiguration(/*UserService userService,*/UserAuthenticationEntryPoint userAuthenticationEntryPoint) {
+    SecurityConfiguration(UserAuthenticationEntryPoint userAuthenticationEntryPoint
+            ,UserAuthenticationProvider userAuthenticationProvider) {
         //this.userService = userService;
         this.userAuthenticationEntryPoint = userAuthenticationEntryPoint;
+        this.userAuthenticationProvider=userAuthenticationProvider;
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,6 +42,7 @@ public class SecurityConfiguration {
         http
                 .exceptionHandling((ex)->ex.authenticationEntryPoint(userAuthenticationEntryPoint))
                 .addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class)
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((session)->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((requests) -> requests
@@ -50,30 +53,5 @@ public class SecurityConfiguration {
 
     }
 
-    /*@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-
-
-        http.exceptionHandling(Customizer.withDefaults()).httpBasic(Customizer.withDefaults());//.authenticationEntryPoint(userAuthenticationEntryPoint);
-        http.addFilterBefore(new JwtAuthFilter(), BasicAuthenticationFilter.class);
-
-        http
-                .cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/register").permitAll() // Permit access to "/login" for all HTTP methods
-                        .anyRequest().authenticated()
-                )
-                .authenticationManager(authenticationManager);
-                return http.build();
-    }*/
-
-    /*@Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build();
-    }*/
 
 }

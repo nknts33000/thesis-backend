@@ -34,7 +34,6 @@ public class UserService implements UserDetailsService {
     }
 
 
-
     public User findUser(Long id){
         return userRepo.findUserById(id);
     }
@@ -47,6 +46,8 @@ public class UserService implements UserDetailsService {
         User user= userRepo.findByEmail(loginDTO.getEmail()).orElseThrow(
                 UserNotFoundException::new
         );
+
+        System.out.println("service found:"+user.getEmail());
 
         if(passwordEncoder.matches(loginDTO.getPassword(),user.getPassword())){
             return user;
@@ -79,9 +80,11 @@ public class UserService implements UserDetailsService {
         return userRepo.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
-    public void update(String email,User user) throws UserNotFoundException {
+    public void update(String email,RegistrationDTO registrationDTO) throws UserNotFoundException {
         if(userRepo.findByEmail(email).isPresent()){
-            userRepo.updateUser(user.getLocation(),user.getFirstname(), user.getPassword(), user.getEmail(),user.getLastname());
+            userRepo.updateUser(registrationDTO.getLocation(),registrationDTO.getFirstname()
+                    , registrationDTO.getPassword(), registrationDTO.getEmail()
+                    ,registrationDTO.getLastname());
         }
         else{
             throw new UserNotFoundException();

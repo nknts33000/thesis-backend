@@ -1,5 +1,6 @@
 package com.example.platform.security.config;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.platform.exceptions.UserNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -48,6 +49,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 } catch (UserNotFoundException e) {
                     throw new RuntimeException(e);
                 }
+//                catch (TokenExpiredException e){
+//                    throw new TokenExpiredException("Token is expired",);
+//                }
             }
         }
 
