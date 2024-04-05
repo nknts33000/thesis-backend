@@ -64,4 +64,8 @@ public class UserController {
 
         userService.deleteUserByEmail(userdto);
     }
+
+    @ResponseBody
+    @PostMapping("/{id}/post")
+    public void upload_post(){}
 }

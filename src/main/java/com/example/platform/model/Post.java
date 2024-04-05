@@ -1,7 +1,9 @@
 package com.example.platform.model;
 
 import jakarta.persistence.*;
+import org.mapstruct.control.MappingControl;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +22,7 @@ public class Post {
     private String content;
 
     @Column(nullable = false)
-    private Date post_date;
+    private LocalDateTime post_date= LocalDateTime.now();
 
     @OneToMany(mappedBy = "post")
     private List<Like> likes;
@@ -30,4 +32,13 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private Set<Comment> comments;
+
+    public Post(String content, User user){
+        this.content=content;
+        this.user=user;
+    }
+
+    public Post() {
+
+    }
 }

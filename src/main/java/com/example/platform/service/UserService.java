@@ -6,7 +6,9 @@ import com.example.platform.dto.UserDTO;
 import com.example.platform.exceptions.InvalidCredentialsException;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
+import com.example.platform.model.Post;
 import com.example.platform.model.User;
+import com.example.platform.repo.PostRepo;
 import com.example.platform.repo.UserRepo;
 import com.example.platform.security.config.UserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,15 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepo userRepo;
+    private final PostRepo postRepo;
 
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepo userRepo,PasswordEncoder passwordEncoder){
+    public UserService(UserRepo userRepo,PostRepo postRepo,PasswordEncoder passwordEncoder){
 
         this.userRepo=userRepo;
+        this.postRepo=postRepo;
         this.passwordEncoder=passwordEncoder;
     }
 
@@ -46,8 +50,6 @@ public class UserService implements UserDetailsService {
         User user= userRepo.findByEmail(loginDTO.getEmail()).orElseThrow(
                 UserNotFoundException::new
         );
-
-        System.out.println("service found:"+user.getEmail());
 
         if(passwordEncoder.matches(loginDTO.getPassword(),user.getPassword())){
             return user;
@@ -145,6 +147,10 @@ public class UserService implements UserDetailsService {
     public void deleteUserByEmail(UserDTO userdto){
 
         userRepo.deleteByEmail(userdto.getEmail());
+    }
+
+    public void upload_post(String content,User user){
+        postRepo.save(new Post(content,user));
     }
 
     @Override
