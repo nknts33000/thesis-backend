@@ -25,10 +25,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userAuthenticationProvider=userAuthenticationProvider;
     }
 
-//    @Autowired
-//    public void setAuthenticationProvider(UserAuthenticationProvider userAuthenticationProvider){
-//        this.userAuthenticationProvider=userAuthenticationProvider;
-//    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,8 +32,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if(header !=null){
             String[] elements =header.split(" ");
-            System.out.println(elements[0]);
-            System.out.println(elements[1]);
+//            System.out.println(elements[0]);
+//            System.out.println(elements[1]);
             if(elements.length==2 && "Bearer".equals(elements[0])){
                 try{
                     SecurityContextHolder.getContext().setAuthentication(

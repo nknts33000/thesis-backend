@@ -3,13 +3,14 @@ package com.example.platform.model;
 import jakarta.persistence.*;
 import org.mapstruct.control.MappingControl;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-public class Post {
+public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long post_id;

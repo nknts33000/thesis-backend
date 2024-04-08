@@ -1,6 +1,7 @@
 package com.example.platform.service;
 
 import com.example.platform.dto.LoginDTO;
+import com.example.platform.dto.PostDTO;
 import com.example.platform.dto.RegistrationDTO;
 import com.example.platform.dto.UserDTO;
 import com.example.platform.exceptions.InvalidCredentialsException;
@@ -40,6 +41,11 @@ public class UserService implements UserDetailsService {
 
     public User findUser(Long id){
         return userRepo.findUserById(id);
+    }
+
+    public User findUserByEmail(String email) throws UserNotFoundException {
+        User user= userRepo.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        return user;
     }
 
     public List<User> findAllUsers(){
@@ -162,7 +168,14 @@ public class UserService implements UserDetailsService {
 
     }
 
+    public void addPost(PostDTO postDTO, UserDTO userDTO) throws UserNotFoundException {
+        User user=findUserByEmail(userDTO.getEmail());
+        postRepo.save(
+                new Post(postDTO.getContent(),user)
+        );
+    }
 
-   /////
+
+    /////
 
 }

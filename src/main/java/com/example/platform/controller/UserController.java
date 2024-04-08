@@ -1,5 +1,6 @@
 package com.example.platform.controller;
 
+import com.example.platform.dto.PostDTO;
 import com.example.platform.dto.RegistrationDTO;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
@@ -66,6 +67,8 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping("/{id}/post")
-    public void upload_post(){}
+    @PostMapping("/post")
+    public void upload_post(@RequestBody PostDTO postDTO,@RequestBody UserDTO userDTO) throws UserNotFoundException {
+        userService.addPost(postDTO,userDTO);
+    }
 }
