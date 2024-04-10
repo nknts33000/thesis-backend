@@ -1,6 +1,9 @@
 package com.example.platform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.mapstruct.control.MappingControl;
 
 import java.io.Serializable;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Getter
 public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +21,7 @@ public class Post implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",referencedColumnName = "id")
+    @JsonBackReference
     private User user;
 
     @Column(nullable = false)

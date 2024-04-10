@@ -1,8 +1,12 @@
 package com.example.platform.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "connections")
 public class Connection {
     @Id
@@ -27,4 +31,12 @@ public class Connection {
 
     @Column(nullable = false)
     private String connection_status;
+
+    public Connection(){}
+
+    public Connection(User user1,User user2,String connection_status){
+        this.user1=user1;
+        this.user2=user2;
+        this.connection_status=connection_status;
+    }
 }

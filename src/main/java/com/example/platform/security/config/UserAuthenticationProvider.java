@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 //import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -26,13 +27,16 @@ public class UserAuthenticationProvider {
 
     //@Value("${security.jwt.token.secret-key:secret-value}")// see https://stackoverflow.com/questions/66608801/this-annotation-is-not-applicable-to-target-local-variable
     private String secretKey="${security.jwt.token.secret-key:secret-value}";
+
+    //private SecretKeyConfig secretKeyConfig;
     private String secondKey;
 
     private UserService userService;
 
     @Autowired
-    public UserAuthenticationProvider(UserService userService){
+    public UserAuthenticationProvider(UserService userService){//,SecretKeyConfig secretKeyConfig){
         this.userService=userService;
+        //this.secretKeyConfig=secretKeyConfig;
     }
 
     //@PostConstruct
@@ -55,14 +59,28 @@ public class UserAuthenticationProvider {
                 .sign(Algorithm.HMAC256(secondKey));
     }
 
-    public UsernamePasswordAuthenticationToken validateToken(String token) throws UserNotFoundException {
-        secondKey=SecretValue();
 
+
+    public User getUserFromToken(String token) throws UserNotFoundException {
+        secondKey=SecretValue();
+        //System.out.println("in validate token: "+secondKey);
         JWTVerifier verifier=JWT.require(Algorithm.HMAC256(secondKey)).build();
 
         DecodedJWT decodedJWT= verifier.verify(token);
         System.out.println("email:"+decodedJWT.getSubject());
         User user = userService.getUser(decodedJWT.getSubject());
+
+        return user;
+    }
+
+    public UsernamePasswordAuthenticationToken validateToken(String token) throws UserNotFoundException {
+//        secondKey=SecretValue();
+//
+//        JWTVerifier verifier=JWT.require(Algorithm.HMAC256(secondKey)).build();
+//
+//        DecodedJWT decodedJWT= verifier.verify(token);
+//        System.out.println("email:"+decodedJWT.getSubject());
+        User user = getUserFromToken(token);//userService.getUser(decodedJWT.getSubject());
 
         return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
     }

@@ -1,8 +1,12 @@
 package com.example.platform.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "profiles")
 public class Profile {
     @Id
@@ -12,8 +16,24 @@ public class Profile {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id") //(foreign key referencing Users)
     private User user;
+
+    private String picture_url;
     private String headline;
     private String summary;
     private String industry;
-    private String website;
+
+    public Profile() {
+
+    }
+
+    public Profile(User user){
+        this.user=user;
+    }
+
+//    public Profile(String picture_url,String headline,String summary,String industry){
+//        this.picture_url=picture_url;
+//        this.headline=headline;
+//        this.summary=summary;
+//        this.industry=industry;
+//    }
 }

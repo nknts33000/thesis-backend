@@ -1,6 +1,8 @@
 package com.example.platform.repo;
 
+import com.example.platform.model.Post;
 import com.example.platform.model.User;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +10,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @Transactional
@@ -42,4 +46,14 @@ public interface UserRepo extends JpaRepository<User,Long> {
     void updateEmail(String new_email,Long id);
 
     void deleteByEmail(String email);
+
+    @Query("select c.user2.id from Connection c where c.user1.id = :userId")
+    List<Long> findFriendsIdsByInitiatorId(@Param("userId") Long userId);
+
+    @Query("select c.user1.id from Connection c where c.user2.id = :userId")
+    List<Long> findFriendsIdsByAcceptorId(@Param("userId") Long userId);
+
+    @Query("select p from Post p where p.user.id in :friendIds")
+    List<Post> findPostsOfFriends(@Param("friendIds") List<Long> friendIds);
+
 }
