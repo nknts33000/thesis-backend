@@ -87,14 +87,14 @@ public class UserController {
     }
 
     @ResponseBody
-    @GetMapping("/get_friends_posts")
-    public List<Post> getFriendsPosts(@RequestBody String token) throws UserNotFoundException {
+    @PostMapping("/get_friends_posts")
+    public Set<Post> getFriendsPosts(@RequestBody Map<String, String> requestBody) throws UserNotFoundException {
+        String token = requestBody.get("token");
+        System.out.println(token);
         List<Post> friendsPosts=userService.getPostsOfFriends(token);
         Set<Post> sortedPosts = friendsPosts.stream()
-                .sorted(Comparator.comparing(Post::getPost_date))
+                .sorted(Comparator.comparing(Post::getPost_date).reversed())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        //List<Post> postList = new ArrayList<>(friendsPosts);
-        //Collections.sort(friendsPosts, Comparator.comparing(Post::getPost_date));
-        return friendsPosts;
+        return sortedPosts;
     }
 }
