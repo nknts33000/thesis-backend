@@ -30,10 +30,4 @@ public class Profile {
         this.user=user;
     }
 
-//    public Profile(String picture_url,String headline,String summary,String industry){
-//        this.picture_url=picture_url;
-//        this.headline=headline;
-//        this.summary=summary;
-//        this.industry=industry;
-//    }
 }
