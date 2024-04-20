@@ -9,14 +9,8 @@ import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.InvalidCredentialsException;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
-import com.example.platform.model.Connection;
-import com.example.platform.model.Post;
-import com.example.platform.model.Profile;
-import com.example.platform.model.User;
-import com.example.platform.repo.ConnectionRepo;
-import com.example.platform.repo.PostRepo;
-import com.example.platform.repo.ProfileRepo;
-import com.example.platform.repo.UserRepo;
+import com.example.platform.model.*;
+import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,12 +29,14 @@ public class UserService implements UserDetailsService {
     private final PostRepo postRepo;
     private final SecretKeyConfig secretKeyConfig;
     private final ProfileRepo profileRepo;
+    private final CommentRepo commentRepo;
     private final ConnectionRepo connectionRepo;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig, ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder){
+    public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig, ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,CommentRepo commentRepo){
         this.secretKeyConfig = secretKeyConfig;
+        this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
         this.connectionRepo = connectionRepo;
         System.out.println("in service: "+secretKeyConfig.SecretValue());
@@ -50,7 +46,7 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public User findUser(Long id){
+    public User findUserById(Long id){
         return userRepo.findUserById(id);
     }
 
@@ -155,11 +151,11 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public void addPost(PostDTO postDTO) throws UserNotFoundException {
+    public void addPost(String token,String content) throws UserNotFoundException {
 
-        User user=getUserFromToken(postDTO.getToken());
+        User user=getUserFromToken(token);
         postRepo.save(
-                new Post(postDTO.getContent(),user)
+                new Post(content,user)
         );
     }
 
@@ -172,14 +168,6 @@ public class UserService implements UserDetailsService {
         return userRepo.findPostsOfFriends(friendIds);
     }
 
-//
-//    public void editPost(PostDTO postDTO) throws UserNotFoundException {
-//
-//        User user=getUserFromToken(postDTO.getToken());
-//        postRepo.save(
-//                new Post(postDTO.getContent(),user)
-//        );
-//    }
 
     public User getUserFromToken(String token) throws UserNotFoundException {
         String secondKey=secretKeyConfig.SecretValue();
@@ -292,5 +280,26 @@ public class UserService implements UserDetailsService {
         User user1=getUserFromToken(connectionDTO.getToken());
         User user2=getUser(connectionDTO.getReceipient_email());
         connectionRepo.deleteFriend(user1,user2);
+    }
+
+    public UserDTO getUserByPost(Post post) {
+        List<User> result= postRepo.getUserByPostId(post.getPost_id());
+        User user=result.getFirst();
+        return new UserDTO(user.getId(), user.getEmail(), user.getFirstname(), user.getLastname(), null);
+    }
+
+    public Post getPostById(long post_id){
+        Post post=postRepo.getPostById(post_id);
+        return post;
+    }
+
+    public void addCommentToPost(String token, long post_id, String content) throws UserNotFoundException {
+        User user=getUserFromToken(token);
+        Post post= getPostById(post_id);
+        commentRepo.save(new Comment(post,user,content));
+    }
+
+    public List<Comment> getComments(Post post){
+        return commentRepo.getCommentFromPost(post);
     }
 }

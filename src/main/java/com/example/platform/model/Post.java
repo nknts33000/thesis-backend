@@ -1,6 +1,7 @@
 package com.example.platform.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class Post implements Serializable {
     private List<Share> shares;
 
     @OneToMany(mappedBy = "post")
+    @JsonIgnore
     private Set<Comment> comments;
 
     public Post(String content, User user){

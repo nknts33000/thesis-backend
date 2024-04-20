@@ -4,6 +4,7 @@ import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.Post;
+import com.example.platform.model.Profile;
 import com.example.platform.model.User;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +53,10 @@ public class UserController {
 
     @ResponseBody
     @PostMapping("/post")
-    public void upload_post(@RequestBody PostDTO postDTO) throws UserNotFoundException {
-        userService.addPost(postDTO);
+    public void upload_post(@RequestBody Map<String, String> requestBody) throws UserNotFoundException {
+        String token=requestBody.get("token");
+        String content=requestBody.get("content");
+        userService.addPost(token,content);
     }
 
     @ResponseBody
@@ -88,13 +91,40 @@ public class UserController {
 
     @ResponseBody
     @PostMapping("/get_friends_posts")
-    public Set<Post> getFriendsPosts(@RequestBody Map<String, String> requestBody) throws UserNotFoundException {
+    public Set<PostDTO> getFriendsPosts(@RequestBody Map<String, String> requestBody) throws UserNotFoundException {
         String token = requestBody.get("token");
         System.out.println(token);
-        List<Post> friendsPosts=userService.getPostsOfFriends(token);
-        Set<Post> sortedPosts = friendsPosts.stream()
+        List<Post> friendsPosts = userService.getPostsOfFriends(token);
+
+        // Fetch profiles for all users in the friend's posts
+        Map<User, Profile> userProfiles = friendsPosts.stream()
+                .map(Post::getUser)
+                .distinct() // Ensure unique users
+                .collect(Collectors.toMap(
+                        user -> user,
+                        user -> user.getProfile() // Access the profile directly from the user entity
+                ));
+
+        // Create PostDTO objects with corresponding profiles
+        Set<PostDTO> sortedPostsWithUsers = friendsPosts.stream()
                 .sorted(Comparator.comparing(Post::getPost_date).reversed())
+                .map(post -> {
+                    UserDTO userDTO = userService.getUserByPost(post);
+                    Profile profile = userProfiles.get(userService.findUserById(userDTO.getId()));
+                    return new PostDTO(post, userDTO, profile);
+                })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        return sortedPosts;
+
+        return sortedPostsWithUsers;
     }
+
+    @ResponseBody
+    @PostMapping("/addComment")
+    public void addComment(@RequestBody CommentDTO commentDTO) throws UserNotFoundException {
+        userService.addCommentToPost(commentDTO.getToken(),commentDTO.getPost_id(),commentDTO.getContent());
+    }
+
+//    @ResponseBody
+//    @GetMapping
+//    public  List<Comment> getCommentsByPost(@RequestBody PostDTO){}
 }

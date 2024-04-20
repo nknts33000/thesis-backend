@@ -67,6 +67,7 @@ public class User implements Serializable, UserDetails {
     }
 
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private Profile profile;
 
     @OneToMany(mappedBy = "user")

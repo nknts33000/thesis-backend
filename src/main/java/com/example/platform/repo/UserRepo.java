@@ -1,6 +1,7 @@
 package com.example.platform.repo;
 
 import com.example.platform.model.Post;
+import com.example.platform.model.Profile;
 import com.example.platform.model.User;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,5 +56,9 @@ public interface UserRepo extends JpaRepository<User,Long> {
 
     @Query("select p from Post p where p.user.id in :friendIds")
     List<Post> findPostsOfFriends(@Param("friendIds") List<Long> friendIds);
+
+    @Query("select p from Profile p where p.user.id in :friendIds")
+    List<Profile> findProfileByUserId();
+
 
 }

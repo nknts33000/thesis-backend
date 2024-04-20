@@ -1,5 +1,6 @@
 package com.example.platform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class Profile {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id") //(foreign key referencing Users)
+    @JsonBackReference
     private User user;
 
     private String picture_url;
