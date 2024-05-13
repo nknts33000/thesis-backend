@@ -3,6 +3,7 @@ package com.example.platform.controller;
 import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
+import com.example.platform.model.Comment;
 import com.example.platform.model.Post;
 import com.example.platform.model.Profile;
 import com.example.platform.model.User;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Long.parseLong;
 
 @RestController
 @RequestMapping("/user")
@@ -44,12 +47,12 @@ public class UserController {
         userService.updateUserEmail(user.getId(),user);
     }
 
-    @ResponseBody
-    @DeleteMapping("/delete")
-    public void deleteUser(@RequestBody UserDTO userdto) throws UserNotFoundException {
-
-        userService.deleteUserByEmail(userdto);
-    }
+//    @ResponseBody
+//    @DeleteMapping("/delete")
+//    public void deleteUser(@RequestBody UserDTO userdto) throws UserNotFoundException {
+//
+//        userService.deleteUserByEmail(userdto);
+//    }
 
     @ResponseBody
     @PostMapping("/post")
@@ -109,9 +112,28 @@ public class UserController {
         Set<PostDTO> sortedPostsWithUsers = friendsPosts.stream()
                 .sorted(Comparator.comparing(Post::getPost_date).reversed())
                 .map(post -> {
-                    UserDTO userDTO = userService.getUserByPost(post);
-                    Profile profile = userProfiles.get(userService.findUserById(userDTO.getId()));
-                    return new PostDTO(post, userDTO, profile);
+                    User user = userService.getUserByPost(post);
+                    Profile profile = userProfiles.get(userService.findUserById(user.getId()));
+                    List<Comment> comments= userService.getComments(post.getPostId()).stream()
+                            .sorted(Comparator.comparing(Comment::getComment_date).reversed())
+                            .toList();
+                    List<CommentDTO> commentdtos=new ArrayList<>();
+                    for(Comment c:comments){
+                        commentdtos.add(
+                                new CommentDTO(
+                                        c.getUser().getFirstname(),
+                                        c.getUser().getLastname(),
+                                        c.getContent(),
+                                        c.getUser().getProfile().getPicture_url())
+                        );
+                    }
+
+                    return new PostDTO(
+                            post,
+                            user.getFirstname(),
+                            user.getLastname(),
+                            profile.getPicture_url(),
+                            commentdtos);
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -120,11 +142,25 @@ public class UserController {
 
     @ResponseBody
     @PostMapping("/addComment")
-    public void addComment(@RequestBody CommentDTO commentDTO) throws UserNotFoundException {
-        userService.addCommentToPost(commentDTO.getToken(),commentDTO.getPost_id(),commentDTO.getContent());
+    public void addComment(@RequestBody Map<String,String> requestBody) throws UserNotFoundException {
+        String token=requestBody.get("token");
+        long post_id= parseLong(requestBody.get("post_id"));
+        String content= requestBody.get("content");
+        userService.addCommentToPost(token,post_id,content);
     }
 
-//    @ResponseBody
-//    @GetMapping
-//    public  List<Comment> getCommentsByPost(@RequestBody PostDTO){}
+    @ResponseBody
+    @GetMapping("/getComments/{postId}")
+    public  List<Comment> getCommentsByPost(@PathVariable("postId") long postId){
+        System.out.println("postId="+postId);
+        List<Comment> comments=userService.getComments(postId);
+
+        for(Comment c:comments){
+            System.out.println("comment user id:"+c.getUser().getId());
+        }
+
+        return comments.stream()
+                .sorted(Comparator.comparing(Comment::getComment_date).reversed())
+                .collect(Collectors.toList());
+    }
 }

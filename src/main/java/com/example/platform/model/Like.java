@@ -1,5 +1,6 @@
 package com.example.platform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,10 +10,12 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long like_id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id",referencedColumnName = "post_id")
+    @JoinColumn(name="postId",referencedColumnName = "postId")
     private Post post;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",referencedColumnName = "id")
     private User user;

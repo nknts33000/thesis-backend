@@ -282,24 +282,28 @@ public class UserService implements UserDetailsService {
         connectionRepo.deleteFriend(user1,user2);
     }
 
-    public UserDTO getUserByPost(Post post) {
-        List<User> result= postRepo.getUserByPostId(post.getPost_id());
-        User user=result.getFirst();
-        return new UserDTO(user.getId(), user.getEmail(), user.getFirstname(), user.getLastname(), null);
+    public User getUserByPost(Post post) {
+//        List<User> result= postRepo.getUserByPostId(post.getPostId());
+//        User user=result.getFirst();
+
+        return post.getUser();
+        //return new UserDTO(user.getId(), user.getEmail(), user.getFirstname(), user.getLastname(), null);
     }
 
-    public Post getPostById(long post_id){
-        Post post=postRepo.getPostById(post_id);
+    public Post getPostById(long postId){
+        Post post=postRepo.findByPostId(postId);
         return post;
     }
 
     public void addCommentToPost(String token, long post_id, String content) throws UserNotFoundException {
         User user=getUserFromToken(token);
+        System.out.println("post id:"+post_id);
         Post post= getPostById(post_id);
         commentRepo.save(new Comment(post,user,content));
     }
 
-    public List<Comment> getComments(Post post){
+    public List<Comment> getComments(long postId){
+        Post post=getPostById(postId);
         return commentRepo.getCommentFromPost(post);
     }
-}
+}   

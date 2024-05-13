@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.Locale;
 
 @RestController
+@CrossOrigin
 public class AuthController {
 
     private final UserService userService;
@@ -37,7 +39,7 @@ public class AuthController {
 
     @ResponseBody
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO) throws UserExistsException, UserNotFoundException, InvalidCredentialsException {
+    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO) throws UserNotFoundException, InvalidCredentialsException {
         User user=userService.login(loginDTO);
         UserAuthenticationProvider userAuthenticationProvider=new UserAuthenticationProvider();
         UserDTO userDTO=new UserDTO(
@@ -65,6 +67,17 @@ public class AuthController {
                 userAuthenticationProvider.createToken(user.getEmail())
         ));
     }
+
+//    @ResponseBody
+//    @PostMapping("/logout")
+//    public void signOut() {
+//        // Ideally, validate the token first, e.g., checking if it's expired
+//
+//        SecurityContextHolder.clearContext(); // Clears any authentication that is present
+//        // You can also invalidate the token here if using token blacklisting etc.
+//        System.out.println("logged out");
+//        //return ResponseEntity.noContent().build();
+//    }
 
 
 }

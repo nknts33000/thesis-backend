@@ -9,7 +9,7 @@ public class Share {
     private long share_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id",referencedColumnName = "post_id")
+    @JoinColumn(name = "postId",referencedColumnName = "postId")
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)

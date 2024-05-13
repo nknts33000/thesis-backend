@@ -33,6 +33,7 @@ public class User implements Serializable, UserDetails {
     private long id;
     @Column(nullable = false,unique = true)
     private String email;
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
@@ -41,6 +42,7 @@ public class User implements Serializable, UserDetails {
     private String lastname;
     private String location;
     private String roles;
+    @JsonIgnore
     private final LocalDateTime join_date= LocalDateTime.now();
 
     public User() {
@@ -66,42 +68,51 @@ public class User implements Serializable, UserDetails {
 
     }
 
-    @OneToOne(mappedBy = "user")
     @JsonIgnore
+    @OneToOne(mappedBy = "user")
     private Profile profile;
 
-    @OneToMany(mappedBy = "user")
     @JsonIgnore
+    @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user1")
     private List<Connection> connectionList=new ArrayList<>();///when the user initiated the connection(1st user column in connection schema)
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user2")
     private List<Connection> connectionOf=new ArrayList<>();///when the user accepted the connection(2nd user column in connection schema)
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Education> education;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Experience> experiences;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Skill> skills;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Like> likes;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Share> shares;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "owner")
     private List<Group> groupsOwned;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private Set<Comment> comments;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinTable(
             name = "GROUP_MEMBERS",
@@ -112,9 +123,11 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(this.roles.split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return null;
+
+//        return Arrays.stream(this.roles.split(","))
+//                .map(SimpleGrantedAuthority::new)
+//                .collect(Collectors.toList());
     }
 
     @Override

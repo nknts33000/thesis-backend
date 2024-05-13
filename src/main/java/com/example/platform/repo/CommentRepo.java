@@ -13,6 +13,6 @@ import java.util.List;
 @Transactional
 public interface CommentRepo extends JpaRepository<Comment,Long> {
 
-    @Query("SELECT c from Comment c where c.post.post_id=?1")
+    @Query("SELECT c from Comment c where c.post=?1")
     List<Comment> getCommentFromPost(Post post);
 }

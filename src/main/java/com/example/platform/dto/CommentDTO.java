@@ -8,7 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class CommentDTO {
-    private String token;
+    private String firstname;
+    private String lastname;
     private String content;
-    private long post_id;
+    private String picture_url;
 }

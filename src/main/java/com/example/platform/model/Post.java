@@ -18,7 +18,8 @@ import java.util.Set;
 public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long post_id;
+    @Column(name = "postId") // changed from post_id to postId so i could the method in postRepo would recognize the field
+    private long postId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",referencedColumnName = "id")
@@ -31,14 +32,16 @@ public class Post implements Serializable {
     @Column(nullable = false)
     private LocalDateTime post_date= LocalDateTime.now();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "post")
     private List<Like> likes;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "post")
     private List<Share> shares;
 
-    @OneToMany(mappedBy = "post")
     @JsonIgnore
+    @OneToMany(mappedBy = "post")
     private Set<Comment> comments;
 
     public Post(String content, User user){
