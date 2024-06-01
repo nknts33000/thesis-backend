@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.CharBuffer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -31,18 +34,28 @@ public class UserService implements UserDetailsService {
     private final ProfileRepo profileRepo;
     private final CommentRepo commentRepo;
     private final ConnectionRepo connectionRepo;
+
+    private final CompanyRepo companyRepo;
+
+    private final AdvertRepo advertRepo;
+
+    private final ExprerienceRepo exprerienceRepo;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig, ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,CommentRepo commentRepo){
+    public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
+                       ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
+                       CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
         this.connectionRepo = connectionRepo;
-        System.out.println("in service: "+secretKeyConfig.SecretValue());
         this.userRepo=userRepo;
         this.postRepo=postRepo;
+        this.companyRepo=companyRepo;
         this.passwordEncoder=passwordEncoder;
+        this.advertRepo=advertRepo;
+        this.exprerienceRepo=exprerienceRepo;
     }
 
 
@@ -306,4 +319,53 @@ public class UserService implements UserDetailsService {
         Post post=getPostById(postId);
         return commentRepo.getCommentFromPost(post);
     }
+
+    public void createCompany(String token,String mission,String name) throws UserNotFoundException {
+        User creator =getUserFromToken(token);
+        companyRepo.save(
+                new Company(name,mission,creator)
+        );
+    }
+
+    public List<Company> getCompanies(String token) throws UserNotFoundException {
+        User user = getUserFromToken(token);
+        return user.getCompanies();
+    }
+
+    public void addAdvert(Map<String,String> requestBody){
+        System.out.println("id is:" +requestBody.get("company"));
+        Company company= companyRepo.findCompanyByCompanyId(Long.valueOf(requestBody.get("company")));
+        System.out.println("company is:" +company);
+        advertRepo.save(
+                new Advert(
+                        requestBody.get("jobTitle"),
+                        requestBody.get("jobSummary"),
+                        requestBody.get("location"),
+                        requestBody.get("contactInformation"),
+                        company
+                )
+        );
+    }
+
+    public Profile getProfileOfUser(String token) throws UserNotFoundException {
+        User user= getUserFromToken(token);
+        return user.getProfile();
+    }
+
+    public List<Experience> getExperiencesOfUser(String token) throws UserNotFoundException {
+        User user= getUserFromToken(token);
+        return user.getExperiences();
+    }
+
+    public void addExperience(long id,Map<String,String> requestBody) throws ParseException {
+        User user=findUserById(id);
+        exprerienceRepo.save(
+          new Experience(
+                requestBody.get("company_name"),requestBody.get("title"),
+                  requestBody.get("location"), new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),//LocalDate.parse(requestBody.get("start_date")),
+                  new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+          )
+        );
+    }
+
 }   

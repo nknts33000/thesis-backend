@@ -68,9 +68,25 @@ public class User implements Serializable, UserDetails {
 
     }
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToOne(mappedBy = "user")
     private Profile profile;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "creator")
+    private List<Company> companies;
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "ADMINS_OF_COMPANY_PAGES",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "companyId"))
+    private Set<Company> adminOf; //admin of specific company pages
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "applicants")
+    private List<Advert> applications;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
@@ -84,11 +100,11 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user2")
     private List<Connection> connectionOf=new ArrayList<>();///when the user accepted the connection(2nd user column in connection schema)
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
     private List<Education> education;
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
     private List<Experience> experiences;
 
@@ -118,7 +134,7 @@ public class User implements Serializable, UserDetails {
             name = "GROUP_MEMBERS",
             joinColumns = @JoinColumn(name = "id"),
             inverseJoinColumns = @JoinColumn(name = "group_id"))
-    private Set<User> users;
+    private Set<Group> groups;
 
 
     @Override

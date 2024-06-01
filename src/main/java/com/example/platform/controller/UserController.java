@@ -3,14 +3,12 @@ package com.example.platform.controller;
 import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
-import com.example.platform.model.Comment;
-import com.example.platform.model.Post;
-import com.example.platform.model.Profile;
-import com.example.platform.model.User;
+import com.example.platform.model.*;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -162,5 +160,52 @@ public class UserController {
         return comments.stream()
                 .sorted(Comparator.comparing(Comment::getComment_date).reversed())
                 .collect(Collectors.toList());
+    }
+
+
+    @ResponseBody
+    @PostMapping("/createCompany")
+    public void createCompany(@RequestBody Map<String,String> requestBody) throws UserNotFoundException {
+        userService.createCompany(requestBody.get("token"),requestBody.get("mission"),requestBody.get("name"));
+    }
+
+    @ResponseBody
+    @GetMapping("/getCompanies/{token}")
+    public List<Company> getCompaniesOfUser(@PathVariable("token") String token) throws UserNotFoundException {
+        return userService.getCompanies(token);
+    }
+
+    @ResponseBody
+    @PostMapping("/createAdvert")
+    public void createAdvert(@RequestBody Map<String,String> requestBody){
+        userService.addAdvert(requestBody);
+        System.out.println("company id:" + requestBody.get("company"));
+    }
+//
+//    @ResponseBody
+//    @GetMapping("/profile/{token}")
+//    public Profile getProfile(@PathVariable("token") String token) throws UserNotFoundException {
+//        return userService.getProfileOfUser(token);
+//    }
+//
+//    @ResponseBody
+//    @GetMapping("/experiences/{token}")
+//    public List<Experience> getExperiences(@PathVariable("token") String token) throws UserNotFoundException {
+//        return userService.getExperiencesOfUser(token);
+//    }
+
+
+    @ResponseBody
+    @PostMapping("/addExperience/{id}")
+    public void addExperience(@RequestBody Map<String,String> requestBody,@PathVariable("id") long id) throws ParseException {
+        System.out.println(requestBody);
+        userService.addExperience(id,requestBody);
+    }
+
+
+    @ResponseBody
+    @GetMapping("/getUser/{token}")
+    public User getUser(@PathVariable("token") String token) throws UserNotFoundException {
+        return userService.getUserFromToken(token);
     }
 }
