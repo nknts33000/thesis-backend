@@ -240,7 +240,7 @@ public class UserService implements UserDetailsService {
         List<Connection> connection1= connectionRepo.getConnetions(user1,user2);
         List<Connection> connection2= connectionRepo.getConnetions(user2,user1);
         if(!connection1.isEmpty()){
-            Connection connection= connection1.getFirst();
+            Connection connection= connection1.get(0);
             if(connection.getConnection_status().equals("Pending")){
                 return true;
             }
@@ -248,7 +248,7 @@ public class UserService implements UserDetailsService {
                 return false;
             }
         } else if (!connection2.isEmpty()) {
-            Connection connection= connection2.getFirst();
+            Connection connection= connection2.get(0);
             if(connection.getConnection_status().equals("Pending")){
                 return true;
             }
