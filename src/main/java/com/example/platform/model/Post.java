@@ -40,7 +40,7 @@ public class Post implements Serializable {
     @OneToMany(mappedBy = "post")
     private List<Share> shares;
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "post")
     private Set<Comment> comments;
 

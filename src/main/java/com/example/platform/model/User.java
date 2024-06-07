@@ -105,7 +105,7 @@ public class User implements Serializable, UserDetails {
     private List<Education> education;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
     private List<Experience> experiences;
 
     @JsonIgnore

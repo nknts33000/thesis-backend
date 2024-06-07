@@ -1,15 +1,19 @@
 package com.example.platform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.Date;
 
 @Entity
+@Getter
 public class Experience {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long experience_id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;

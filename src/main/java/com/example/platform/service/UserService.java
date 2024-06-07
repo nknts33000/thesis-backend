@@ -40,12 +40,15 @@ public class UserService implements UserDetailsService {
     private final AdvertRepo advertRepo;
 
     private final ExprerienceRepo exprerienceRepo;
+
+    private final EducationRepo educationRepo;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
-                       CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo){
+                       CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
+                       EducationRepo educationRepo){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -56,6 +59,7 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder=passwordEncoder;
         this.advertRepo=advertRepo;
         this.exprerienceRepo=exprerienceRepo;
+        this.educationRepo=educationRepo;
     }
 
 
@@ -347,15 +351,23 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public Profile getProfileOfUser(String token) throws UserNotFoundException {
-        User user= getUserFromToken(token);
-        return user.getProfile();
+    public Profile getProfileOfUser(long id) throws UserNotFoundException {
+        User user= findUserById(id);
+        Profile profile=profileRepo.findByUser(user).orElseThrow(UserNotFoundException::new);
+        return profile;
     }
 
-    public List<Experience> getExperiencesOfUser(String token) throws UserNotFoundException {
-        User user= getUserFromToken(token);
-        return user.getExperiences();
+    public List<Experience> getExperiencesOfUser(long id) throws UserNotFoundException {
+        User user= findUserById(id);
+        List<Experience> experiences=exprerienceRepo.getExperiencesOfUser(user);
+        return experiences;
     }
+
+    public List<Education> getEducationOfUser(long id){
+        User user=findUserById(id);
+        List<Education> education=educationRepo.getEducationByUser(user);
+        return education;
+    };
 
     public void addExperience(long id,Map<String,String> requestBody) throws ParseException {
         User user=findUserById(id);
@@ -366,6 +378,11 @@ public class UserService implements UserDetailsService {
                   new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
           )
         );
+    }
+
+    public List<Post> getPostsOfUser(long id){
+        User user=findUserById(id);
+        return user.getPosts();
     }
 
 }   

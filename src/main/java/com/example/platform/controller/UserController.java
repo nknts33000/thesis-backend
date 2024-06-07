@@ -6,6 +6,9 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -181,19 +184,6 @@ public class UserController {
         userService.addAdvert(requestBody);
         System.out.println("company id:" + requestBody.get("company"));
     }
-//
-//    @ResponseBody
-//    @GetMapping("/profile/{token}")
-//    public Profile getProfile(@PathVariable("token") String token) throws UserNotFoundException {
-//        return userService.getProfileOfUser(token);
-//    }
-//
-//    @ResponseBody
-//    @GetMapping("/experiences/{token}")
-//    public List<Experience> getExperiences(@PathVariable("token") String token) throws UserNotFoundException {
-//        return userService.getExperiencesOfUser(token);
-//    }
-
 
     @ResponseBody
     @PostMapping("/addExperience/{id}")
@@ -206,6 +196,37 @@ public class UserController {
     @ResponseBody
     @GetMapping("/getUser/{token}")
     public User getUser(@PathVariable("token") String token) throws UserNotFoundException {
-        return userService.getUserFromToken(token);
+        User user=userService.getUserFromToken(token);
+        System.out.println("token:"+token);
+        System.out.println("user:"+user.getEmail());
+        return user;
     }
+
+    @ResponseBody
+    @GetMapping("/getProfile/{id}")
+    public Profile getProfile(@PathVariable("id") long id) throws UserNotFoundException {
+        Profile profile=userService.getProfileOfUser(id);
+        return profile;
+    }
+
+    @ResponseBody
+    @GetMapping("/getExperiences/{id}")
+    public List<Experience> getExperiences(@PathVariable("id") long id) throws UserNotFoundException {
+        List<Experience> experiences=userService.getExperiencesOfUser(id);
+        return experiences;
+    }
+
+    @ResponseBody
+    @GetMapping("/getEducation/{id}")
+    public List<Education> getEducation(@PathVariable("id") long id) throws UserNotFoundException {
+        List<Education> education=userService.getEducationOfUser(id);
+        return education;
+    }
+
+    @ResponseBody
+    @GetMapping("/getPosts/{id}")
+    public List<Post> getPostsOfUser(@PathVariable("id") long id){
+        return userService.getPostsOfUser(id);
+    }
+
 }
