@@ -20,6 +20,9 @@ public class Profile {
     private User user;
 
     private String picture_url;
+    @Lob
+    @Column(name = "profile_picture", nullable = true, columnDefinition = "BLOB")
+    private byte[] profilePicture; // Store image as a byte array
     private String headline;
     private String summary;
     private String industry;

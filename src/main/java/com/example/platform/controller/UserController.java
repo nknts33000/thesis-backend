@@ -5,12 +5,15 @@ import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.service.UserService;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,13 +50,6 @@ public class UserController {
     public void UpdateEmail(@RequestBody User user) throws UserNotFoundException {
         userService.updateUserEmail(user.getId(),user);
     }
-
-//    @ResponseBody
-//    @DeleteMapping("/delete")
-//    public void deleteUser(@RequestBody UserDTO userdto) throws UserNotFoundException {
-//
-//        userService.deleteUserByEmail(userdto);
-//    }
 
     @ResponseBody
     @PostMapping("/post")
@@ -188,10 +184,40 @@ public class UserController {
     @ResponseBody
     @PostMapping("/addExperience/{id}")
     public void addExperience(@RequestBody Map<String,String> requestBody,@PathVariable("id") long id) throws ParseException {
-        System.out.println(requestBody);
         userService.addExperience(id,requestBody);
     }
 
+    @ResponseBody
+    @PutMapping("/updateExperience/{id}")
+    public void updateExperience(@RequestBody Map<String,String> requestBody,@PathVariable("id") long id) throws ParseException {
+        System.out.println(requestBody);
+        userService.updateExperience(id,requestBody);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/deleteExperience/{experience_id}")
+    public void deleteExperience(@PathVariable("experience_id") long experience_id){
+        userService.deleteExp(experience_id);
+    }
+
+    @ResponseBody
+    @PostMapping("/addEducation/{id}")
+    public void addEducation(@RequestBody Map<String,String> requestBody,@PathVariable("id") long id) throws ParseException {
+        userService.addEdu(id,requestBody);
+    }
+
+    @ResponseBody
+    @PutMapping("/updateEdu/{id}")
+    public void updateEducation(@RequestBody Map<String,String> requestBody,@PathVariable("id") long id) throws ParseException {
+        userService.updateEdu(id,requestBody);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/deleteEducation/{education_id}")
+    public void deleteEducation(@PathVariable("education_id") long education_id){
+
+        userService.deleteEdu(education_id);
+    }
 
     @ResponseBody
     @GetMapping("/getUser/{token}")
@@ -229,4 +255,10 @@ public class UserController {
         return userService.getPostsOfUser(id);
     }
 
+    @ResponseBody
+    @PutMapping("/updateProfPic/{profile_id}")
+    public void updatePic(@RequestParam("file") MultipartFile file,@PathVariable("profile_id") long profile_id) throws IOException {
+        byte[] fileBytes = file.getBytes();
+        userService.uploadProfPic(fileBytes,profile_id);
+    }
 }

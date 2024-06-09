@@ -31,6 +31,17 @@ public class Experience {
 
     public Experience(){}
 
+    public Experience(long experience_id,String company_name,String title,String location,
+                      Date start_date,Date end_date,User user){
+        this.experience_id=experience_id;
+        this.company_name=company_name;
+        this.title=title;
+        this.location=location;
+        this.start_date=start_date;
+        this.end_date=end_date;
+        this.user=user;
+    }
+
     public Experience(String company_name,String title,String location,
                       Date start_date,Date end_date,User user){
         this.company_name=company_name;

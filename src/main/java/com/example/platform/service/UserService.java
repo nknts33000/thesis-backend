@@ -380,9 +380,54 @@ public class UserService implements UserDetailsService {
         );
     }
 
+    public void updateExperience(long id,Map<String,String> requestBody) throws ParseException {
+        User user=findUserById(id);
+        exprerienceRepo.save(
+                new Experience(
+                        Long.parseLong(requestBody.get("experience_id")),requestBody.get("company_name"),requestBody.get("title"),
+                        requestBody.get("location"), new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),//LocalDate.parse(requestBody.get("start_date")),
+                        new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+                )
+        );
+    }
+
+    public void deleteExp(long experienceId) {
+        exprerienceRepo.deleteById(experienceId);
+    }
+
+    public void addEdu(long id,Map<String,String> requestBody) throws ParseException{
+        User user=findUserById(id);
+        educationRepo.save(
+          new Education(
+                  requestBody.get("school_name"),requestBody.get("degree"),
+                  requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),
+                  new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+          )
+        );
+    }
+    public void updateEdu(long id, Map<String, String> requestBody) throws ParseException {
+        User user=findUserById(id);
+        educationRepo.save(
+                new Education(
+                        Long.parseLong(requestBody.get("education_id")),requestBody.get("school_name"),requestBody.get("degree"),
+                        requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),
+                        new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+                )
+        );
+    }
+
+    public void deleteEdu(long education_id){
+        educationRepo.deleteById(education_id);
+    }
+
     public List<Post> getPostsOfUser(long id){
         User user=findUserById(id);
         return user.getPosts();
     }
 
-}   
+    public void uploadProfPic(byte[] profilePicture,long profile_id){
+        profileRepo.updateProfPic(profilePicture,profile_id);
+    }
+
+
+}

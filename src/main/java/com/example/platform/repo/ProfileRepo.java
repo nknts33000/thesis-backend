@@ -17,5 +17,10 @@ public interface ProfileRepo extends JpaRepository<Profile,Long> {
     @Query("delete Profile p where p.user=?1")
     void deleteProfileByUser(User user);
 
+    @Query("update Profile p set p.profilePicture=?1 where p.profile_id=?2")
+    @Modifying
+    void updateProfPic(byte[] fileBytes, long profile_id);
+
+
     Optional<Profile> findByUser(User user);
 }
