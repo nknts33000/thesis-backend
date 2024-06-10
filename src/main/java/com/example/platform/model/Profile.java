@@ -21,7 +21,7 @@ public class Profile {
 
     private String picture_url;
     @Lob
-    @Column(name = "profile_picture", nullable = true, columnDefinition = "BLOB")
+    @Column(name = "profile_picture", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] profilePicture; // Store image as a byte array
     private String headline;
     private String summary;

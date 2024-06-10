@@ -429,5 +429,8 @@ public class UserService implements UserDetailsService {
         profileRepo.updateProfPic(profilePicture,profile_id);
     }
 
+    public byte[] getProfilePicture(long profileId) {
+        return profileRepo.findProfilePictureById(profileId).orElse(null);
+    }
 
 }

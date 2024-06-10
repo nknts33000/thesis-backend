@@ -4,6 +4,7 @@ import com.example.platform.model.Profile;
 import com.example.platform.model.User;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,9 @@ public interface ProfileRepo extends JpaRepository<Profile,Long> {
     @Query("update Profile p set p.profilePicture=?1 where p.profile_id=?2")
     @Modifying
     void updateProfPic(byte[] fileBytes, long profile_id);
+
+    @Query("select p.profilePicture from Profile p where p.profile_id = :profileId")
+    Optional<byte[]> findProfilePictureById(@Param("profileId") long profileId);
 
 
     Optional<Profile> findByUser(User user);
