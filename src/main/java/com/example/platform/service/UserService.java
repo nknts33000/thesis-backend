@@ -436,13 +436,15 @@ public class UserService implements UserDetailsService {
 
     public void addEdu(long id,Map<String,String> requestBody) throws ParseException{
         User user=findUserById(id);
-        educationRepo.save(
-          new Education(
-                  requestBody.get("school_name"),requestBody.get("degree"),
-                  requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
-                  new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
-          )
+        Education education=new Education(
+                requestBody.get("school_name"),requestBody.get("degree"),
+                requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
+                new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
         );
+        educationRepo.save(
+          education
+        );
+
     }
     public void updateEdu(long id, Map<String, String> requestBody) throws ParseException {
         User user=findUserById(id);
