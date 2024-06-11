@@ -185,6 +185,7 @@ public class UserController {
     @ResponseBody
     @PostMapping("/addExperience/{id}")
     public void addExperience(@RequestBody Map<String,String> requestBody,@PathVariable("id") long id) throws ParseException {
+        System.out.println(requestBody);
         userService.addExperience(id,requestBody);
     }
 
@@ -259,17 +260,25 @@ public class UserController {
     @ResponseBody
     @PutMapping("/updateProfPic/{profile_id}")
     public void updatePic(@RequestParam("file") MultipartFile file,@PathVariable("profile_id") long profile_id) throws IOException {
-        System.out.println("in the controller");
         byte[] fileBytes = file.getBytes();
         userService.uploadProfPic(fileBytes,profile_id);
     }
 
-    @GetMapping("/profilePic/{profile_id}")
-    public ResponseEntity<byte[]> getProfilePic(@PathVariable("profile_id") long profile_id) {
-        byte[] image = userService.getProfilePicture(profile_id);
+    @ResponseBody
+    @GetMapping("/profilePic/{id}")
+    public ResponseEntity<byte[]> getProfilePic(@PathVariable("id") long id) {
+        byte[] image = userService.getProfilePicture(id);
         if (image == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(image);
     }
+
+    @ResponseBody
+    @PutMapping("/setSummary/{profile_id}")
+    public void setSummary(@PathVariable("profile_id") long profile_id,@RequestBody Map<String,String> requestBody){
+        String summary=requestBody.get("summary");
+        userService.setSummary(summary,profile_id);
+    }
+
 }

@@ -12,6 +12,7 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
+import org.hibernate.internal.log.SubSystemLogging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -366,27 +367,65 @@ public class UserService implements UserDetailsService {
     public List<Education> getEducationOfUser(long id){
         User user=findUserById(id);
         List<Education> education=educationRepo.getEducationByUser(user);
+        for(Education ed:education){
+            System.out.println("start date:"+ed.getStart_date());
+            System.out.println("start date:"+ed.getEnd_date());
+        }
+
         return education;
     };
 
-    public void addExperience(long id,Map<String,String> requestBody) throws ParseException {
-        User user=findUserById(id);
+//    public void addExperience(long id,Map<String,String> requestBody) throws ParseException {
+//        User user=findUserById(id);
+//        exprerienceRepo.save(
+//          new Experience(
+//                requestBody.get("company_name"),requestBody.get("title"),
+//                  requestBody.get("location"), new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),//LocalDate.parse(requestBody.get("start_date")),
+//                  new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
+//          )
+//        );
+//    }
+
+    public void addExperience(long id, Map<String, String> requestBody) throws ParseException {
+        User user = findUserById(id);
+
+        // Create a SimpleDateFormat object with the desired format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        // Parse the start date and end date strings into Date objects
+        Date startDate = dateFormat.parse(requestBody.get("start_date"));
+        Date endDate = dateFormat.parse(requestBody.get("end_date"));
+
+        // Save the Experience object
         exprerienceRepo.save(
-          new Experience(
-                requestBody.get("company_name"),requestBody.get("title"),
-                  requestBody.get("location"), new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),//LocalDate.parse(requestBody.get("start_date")),
-                  new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
-          )
+                new Experience(
+                        requestBody.get("company_name"),
+                        requestBody.get("title"),
+                        requestBody.get("location"),
+                        startDate,
+                        endDate,
+                        user
+                )
         );
     }
 
     public void updateExperience(long id,Map<String,String> requestBody) throws ParseException {
         User user=findUserById(id);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        // Parse the start date and end date strings into Date objects
+        Date startDate = dateFormat.parse(requestBody.get("start_date"));
+        Date endDate = dateFormat.parse(requestBody.get("end_date"));
         exprerienceRepo.save(
                 new Experience(
-                        Long.parseLong(requestBody.get("experience_id")),requestBody.get("company_name"),requestBody.get("title"),
-                        requestBody.get("location"), new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),//LocalDate.parse(requestBody.get("start_date")),
-                        new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+                        Long.parseLong(requestBody.get("experience_id")),
+                        requestBody.get("company_name"),
+                        requestBody.get("title"),
+                        requestBody.get("location"),
+                        startDate,
+                        endDate,
+                        user
                 )
         );
     }
@@ -400,8 +439,8 @@ public class UserService implements UserDetailsService {
         educationRepo.save(
           new Education(
                   requestBody.get("school_name"),requestBody.get("degree"),
-                  requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),
-                  new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+                  requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
+                  new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
           )
         );
     }
@@ -410,8 +449,8 @@ public class UserService implements UserDetailsService {
         educationRepo.save(
                 new Education(
                         Long.parseLong(requestBody.get("education_id")),requestBody.get("school_name"),requestBody.get("degree"),
-                        requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("start_date")),
-                        new SimpleDateFormat("yyyy-mm-dd").parse(requestBody.get("end_date")),user
+                        requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
+                        new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
                 )
         );
     }
@@ -429,8 +468,13 @@ public class UserService implements UserDetailsService {
         profileRepo.updateProfPic(profilePicture,profile_id);
     }
 
-    public byte[] getProfilePicture(long profileId) {
-        return profileRepo.findProfilePictureById(profileId).orElse(null);
+    public byte[] getProfilePicture(long id) {
+        User user=findUserById(id);
+        return profileRepo.findProfilePictureById(user).orElse(null);
+    }
+
+    public void setSummary(String summary,long profile_id){
+        profileRepo.setSummary(summary,profile_id);
     }
 
 }
