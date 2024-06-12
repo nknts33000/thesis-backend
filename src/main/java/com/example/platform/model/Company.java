@@ -24,7 +24,7 @@ public class Company {
     private String name;
     @Column(nullable = false)
     private String mission;
-    private String companyLogo;
+    //private String companyLogo;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

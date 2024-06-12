@@ -18,7 +18,7 @@ public class Advert {
     private long advertId;
     @Column(nullable = false)
     private String jobTitle;
-    @Column(nullable = false)
+    @Column(nullable = false,length = 1000)
     private String jobSummary;
     private String location;
     private String contactInformation;
