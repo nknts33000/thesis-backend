@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "stem_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "porter_stem"]
+        }
+      }
+    }
+  }
+}

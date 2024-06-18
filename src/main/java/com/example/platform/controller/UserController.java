@@ -1,5 +1,7 @@
 package com.example.platform.controller;
 
+import com.example.platform.ElasticSearch.AdvertES;
+import com.example.platform.ElasticSearch.AdvertService;
 import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
@@ -27,6 +29,8 @@ import static java.lang.Long.parseLong;
 public class UserController {
 
     private final UserService userService;
+    @Autowired
+    private AdvertService advertService;
 
     @Autowired
     UserController(UserService userService){
@@ -176,10 +180,33 @@ public class UserController {
     }
 
     @ResponseBody
+    @GetMapping("/searchAdverts/{query}")
+    public List<Advert> searchAdverts(@PathVariable("query") String query) throws UserNotFoundException {
+        System.out.println("query:"+query);
+        List<AdvertES> advert_docs=advertService.searchByJobSummary(query);
+        List<Advert> adverts=new ArrayList<>();
+        for(AdvertES advertES:advert_docs){
+
+            adverts.add(
+                    userService.findAdvertByAdvertId(Long.parseLong(advertES.getId()))
+            );
+        }
+        return adverts;
+    }
+
+    @ResponseBody
     @PostMapping("/createAdvert")
     public void createAdvert(@RequestBody Map<String,String> requestBody){
-        userService.addAdvert(requestBody);
-        System.out.println("company id:" + requestBody.get("company"));
+        Advert advert=userService.addAdvert(requestBody);
+        advertService.saveAdvert(
+                new AdvertES(
+                    Long.toString(advert.getAdvertId()),
+                        advert.getJobTitle(),
+                        advert.getJobSummary(),
+                        advert.getLocation(),
+                        advert.getCompany().getName()
+                )
+        );
     }
 
     @ResponseBody

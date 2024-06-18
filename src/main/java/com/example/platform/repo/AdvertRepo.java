@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AdvertRepo extends JpaRepository<Advert,Long> {
     //public List<Advert> getAdverts
+    public Advert findAdvertByAdvertId(long advertId);
 }
