@@ -1,12 +1,18 @@
 package com.example.platform.ElasticSearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.client.elc.QueryBuilders;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +24,9 @@ public class AdvertService {
 
     @Autowired
     private ElasticsearchClient elasticsearchClient;
+
+    @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
 
 
     // Save or update an AdvertES
@@ -50,12 +59,12 @@ public class AdvertService {
                                     .field("jobSummary")
                                     .query(query)
                             )
-                    )
+                    ).size(50)
             );
 
             SearchResponse<AdvertES> response = elasticsearchClient.search(request, AdvertES.class);
             return response.hits().hits().stream()
-                    .map(Hit::source).filter(advertes -> advertes != null)
+                    .map(Hit::source)//.filter(advertes -> advertes != null)
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
@@ -63,5 +72,6 @@ public class AdvertService {
             return List.of();
         }
     }
+
 
 }

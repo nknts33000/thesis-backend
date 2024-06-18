@@ -1,5 +1,7 @@
 package com.example.platform.data;
 
+import com.example.platform.ElasticSearch.AdvertES;
+import com.example.platform.ElasticSearch.AdvertService;
 import com.example.platform.dto.RegistrationDTO;
 import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
@@ -11,6 +13,7 @@ import com.example.platform.repo.CompanyRepo;
 import com.example.platform.repo.UserRepo;
 import com.example.platform.service.UserService;
 import com.github.javafaker.Faker;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -28,10 +31,14 @@ public class DataLoader implements CommandLineRunner {
 
     private final UserService userService;
 
-    public DataLoader(CompanyRepo companyRepository, AdvertRepo advertRepository, UserService userService) {
+    private final AdvertService advertService;
+
+    @Autowired
+    public DataLoader(CompanyRepo companyRepository, AdvertRepo advertRepository, UserService userService,AdvertService advertService) {
         this.companyRepository = companyRepository;
         this.advertRepository = advertRepository;
         this.userService=userService;
+        this.advertService=advertService;
     }
 
     @Override
@@ -81,11 +88,17 @@ public class DataLoader implements CommandLineRunner {
 //                        String jobSummary = faker.job().keySkills() + " required. " + faker.job().position();
 //                        String jobLocation = faker.address().city();
 //                        String contactInformation = faker.internet().emailAddress();
-//
-//                        Advert advert = new Advert(jobTitle, jobSummary, jobLocation, contactInformation, company);
+//                        Advert advert=advertRepository.save(new Advert(jobTitle, jobSummary, jobLocation, contactInformation, company));
 //                        adverts.add(advert);
-//                        advertRepository.save(advert);
-//
+//                        advertService.saveAdvert(
+//                                new AdvertES(
+//                                        Long.toString(advert.getAdvertId()),
+//                                        advert.getJobTitle(),
+//                                        advert.getJobSummary(),
+//                                        advert.getLocation(),
+//                                        advert.getCompany().getName()
+//                                )
+//                        );
 //                        // Write advert data to file
 //                        //writer.write(String.format("    Advert %d: Job Title: %s, Job Summary: %s, Location: %s, Contact Information: %s%n", k + 1, jobTitle, jobSummary, jobLocation, contactInformation));
 //                    }
