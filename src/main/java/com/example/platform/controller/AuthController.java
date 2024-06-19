@@ -1,5 +1,7 @@
 package com.example.platform.controller;
 
+import com.example.platform.ElasticSearch.UserES;
+import com.example.platform.ElasticSearch.UserSearchingService;
 import com.example.platform.dto.LoginDTO;
 import com.example.platform.dto.RegistrationDTO;
 import com.example.platform.dto.UserDTO;
@@ -31,10 +33,15 @@ public class AuthController {
 
     private final UserService userService;
 
+    private final UserSearchingService userSearchingService;
+
+
 
     @Autowired
-    AuthController(UserService userService){
+    AuthController(UserService userService,UserSearchingService userSearchingService){
+
         this.userService=userService;
+        this.userSearchingService=userSearchingService;
     }
 
     @ResponseBody
@@ -56,8 +63,14 @@ public class AuthController {
     @ResponseBody
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody RegistrationDTO registrationDTO) throws UserExistsException, UserNotFoundException {
-        userService.addUser(registrationDTO);
-        User user = userService.getUser(registrationDTO.getEmail());
+        User user=userService.addUser(registrationDTO);
+        //User user = userService.getUser(registrationDTO.getEmail());
+        userSearchingService.saveUser(
+                new UserES(
+                    Long.toString(user.getId()),
+                    user.getFirstname(), user.getLastname()
+                )
+        );
         UserAuthenticationProvider userAuthenticationProvider = new UserAuthenticationProvider();
         return ResponseEntity.created(URI.create("/user/" + user.getId())).body(new UserDTO(
                 user.getId(),

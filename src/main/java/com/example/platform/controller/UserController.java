@@ -1,7 +1,6 @@
 package com.example.platform.controller;
 
-import com.example.platform.ElasticSearch.AdvertES;
-import com.example.platform.ElasticSearch.AdvertService;
+import com.example.platform.ElasticSearch.*;
 import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
@@ -31,6 +30,10 @@ public class UserController {
     private final UserService userService;
     @Autowired
     private AdvertService advertService;
+    @Autowired
+    private UserSearchingService userSearchingService;
+    @Autowired
+    private CompanyService companyService;
 
     @Autowired
     UserController(UserService userService){
@@ -306,6 +309,37 @@ public class UserController {
     public void setSummary(@PathVariable("profile_id") long profile_id,@RequestBody Map<String,String> requestBody){
         String summary=requestBody.get("summary");
         userService.setSummary(summary,profile_id);
+    }
+
+    @ResponseBody
+    @GetMapping("/searchUsers/{query}")
+    public List<User> searchUsers(@PathVariable("query") String query){
+        List<UserES> usersES= userSearchingService.search(query);
+        List<User> users= new ArrayList<>();
+        for(UserES userES:usersES){
+            User user= userService.findUserById(Long.parseLong(userES.getId()));
+            users.add(user);
+        }
+        return users;
+    }
+
+    @ResponseBody
+    @GetMapping("/searchCompanies/{query}")
+    public List<Company> searchCompanies(@PathVariable("query") String query){
+        List<CompanyES> companiesES= companyService.search(query);
+        List<Company> companies= new ArrayList<>();
+        for(CompanyES companyES:companiesES){
+            Company company=userService.findCompanyById(Long.parseLong(companyES.getId()));
+            companies.add(company);
+        }
+        return companies;
+    }
+
+    @ResponseBody
+    @GetMapping("/getCompany/{companyId}")
+    public Company getCompanyById(@PathVariable("companyId") long companyId){
+        Company company=userService.findCompanyById(companyId);
+        return company;
     }
 
 }

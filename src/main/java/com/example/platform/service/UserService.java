@@ -4,6 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.platform.ElasticSearch.CompanyES;
+import com.example.platform.ElasticSearch.CompanyRepository;
 import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.InvalidCredentialsException;
@@ -43,13 +45,14 @@ public class UserService implements UserDetailsService {
     private final ExprerienceRepo exprerienceRepo;
 
     private final EducationRepo educationRepo;
+    private final CompanyRepository companyRepository;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
-                       EducationRepo educationRepo){
+                       EducationRepo educationRepo,CompanyRepository companyRepository){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -61,11 +64,16 @@ public class UserService implements UserDetailsService {
         this.advertRepo=advertRepo;
         this.exprerienceRepo=exprerienceRepo;
         this.educationRepo=educationRepo;
+        this.companyRepository=companyRepository;
     }
 
 
     public User findUserById(Long id){
         return userRepo.findUserById(id);
+    }
+
+    public Company findCompanyById(Long id){
+        return companyRepo.findCompanyByCompanyId(id);
     }
 
     public User findUserByEmail(String email) throws UserNotFoundException {
@@ -91,7 +99,7 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public void addUser(RegistrationDTO registrationDTO) throws UserExistsException, UserNotFoundException {
+    public User addUser(RegistrationDTO registrationDTO) throws UserExistsException, UserNotFoundException {
 
         boolean userExists=userRepo.findByEmail(registrationDTO.getEmail()).isPresent();
         if(!userExists){
@@ -104,6 +112,7 @@ public class UserService implements UserDetailsService {
             );
             userRepo.save(user);
             createProfile(user);
+            return user;
         }
         else{
             throw new UserExistsException();
@@ -327,9 +336,16 @@ public class UserService implements UserDetailsService {
 
     public void createCompany(String token,String mission,String name) throws UserNotFoundException {
         User creator =getUserFromToken(token);
-        companyRepo.save(
+        Company company=companyRepo.save(
                 new Company(name,mission,creator)
         );
+        companyRepository.save(
+                new CompanyES(
+                    Long.toString(company.getCompanyId()),
+                    company.getName()
+                )
+        );
+
     }
 
     public List<Company> getCompanies(String token) throws UserNotFoundException {
