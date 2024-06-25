@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.mapstruct.control.MappingControl;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -25,6 +26,10 @@ public class Company {
     @Column(nullable = false)
     private String mission;
     //private String companyLogo;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "company")
+    private List<Post> posts;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

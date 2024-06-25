@@ -26,6 +26,11 @@ public class Post implements Serializable {
     @JsonBackReference
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="companyId",referencedColumnName = "companyId")
+    @JsonBackReference
+    private Company company;
+
     @Column(nullable = false)
     private String content;
 
@@ -47,6 +52,12 @@ public class Post implements Serializable {
     public Post(String content, User user){
         this.content=content;
         this.user=user;
+    }
+
+    public Post(String content, User user,Company company){
+        this.content=content;
+        this.user=user;
+        this.company=company;
     }
 
     public Post() {

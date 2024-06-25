@@ -185,17 +185,20 @@ public class UserController {
     @ResponseBody
     @GetMapping("/searchAdverts/{query}")
     public List<Advert> searchAdverts(@PathVariable("query") String query) throws UserNotFoundException {
-        System.out.println("query:"+query);
-        List<AdvertES> advert_docs=advertService.searchByJobSummary(query);
-        List<Advert> adverts=new ArrayList<>();
-        for(AdvertES advertES:advert_docs){
-
-            adverts.add(
-                    userService.findAdvertByAdvertId(Long.parseLong(advertES.getId()))
-            );
+        System.out.println("query:" + query);
+        List<AdvertES> advert_docs = advertService.searchByJobSummary(query);
+        List<Advert> adverts = new ArrayList<>();
+        for (AdvertES advertES : advert_docs) {
+            if (advertES != null) { // Check for null before processing
+                Advert advert = userService.findAdvertByAdvertId(Long.parseLong(advertES.getId()));
+                if (advert != null) { // Check for null advert as well
+                    adverts.add(advert);
+                }
+            }
         }
         return adverts;
     }
+
 
     @ResponseBody
     @PostMapping("/createAdvert")
@@ -340,6 +343,22 @@ public class UserController {
     public Company getCompanyById(@PathVariable("companyId") long companyId){
         Company company=userService.findCompanyById(companyId);
         return company;
+    }
+
+    @ResponseBody
+    @GetMapping("/findUser/{id}")
+    public User findUserById(@PathVariable("id") long id){
+        User user=userService.findUserById(id);
+        return user;
+    }
+
+    @ResponseBody
+    @GetMapping("/getPostsOfCompany/{companyId}")
+    public List<Post> postsOfCompany(@PathVariable("companyId") long companyId){
+        List<Post> posts=userService.postsOfCompany(companyId);
+        return posts.stream()
+                .sorted(Comparator.comparing(Post::getPost_date).reversed())
+                .collect(Collectors.toList());
     }
 
 }

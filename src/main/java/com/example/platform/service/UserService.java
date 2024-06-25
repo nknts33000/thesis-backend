@@ -16,6 +16,7 @@ import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
 import org.hibernate.internal.log.SubSystemLogging;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -65,6 +66,7 @@ public class UserService implements UserDetailsService {
         this.exprerienceRepo=exprerienceRepo;
         this.educationRepo=educationRepo;
         this.companyRepository=companyRepository;
+
     }
 
 
@@ -395,16 +397,6 @@ public class UserService implements UserDetailsService {
         return education;
     };
 
-//    public void addExperience(long id,Map<String,String> requestBody) throws ParseException {
-//        User user=findUserById(id);
-//        exprerienceRepo.save(
-//          new Experience(
-//                requestBody.get("company_name"),requestBody.get("title"),
-//                  requestBody.get("location"), new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),//LocalDate.parse(requestBody.get("start_date")),
-//                  new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
-//          )
-//        );
-//    }
 
     public void addExperience(long id, Map<String, String> requestBody) throws ParseException {
         User user = findUserById(id);
@@ -497,6 +489,12 @@ public class UserService implements UserDetailsService {
 
     public void setSummary(String summary,long profile_id){
         profileRepo.setSummary(summary,profile_id);
+    }
+
+    public List<Post> postsOfCompany(long companyId){
+        Company company=companyRepo.findCompanyByCompanyId(companyId);
+        List<Post> posts= companyRepo.findPostsOfCompany(company);
+        return posts;
     }
 
 }
