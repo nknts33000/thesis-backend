@@ -361,4 +361,33 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
+    @ResponseBody
+    @PutMapping("/updateCompanyPic/{companyId}")
+    public void updateComPic(@RequestParam("file") MultipartFile file,@PathVariable("companyId") long companyId) throws IOException {
+        byte[] fileBytes = file.getBytes();
+        userService.updateComLogo(fileBytes,companyId);
+    }
+
+    @ResponseBody
+    @GetMapping("/getCompanyLogo/{companyId}")
+    public byte[] getCompanyLogo(@PathVariable("companyId") long companyId){
+        return userService.getCompanyLogo(companyId);
+    }
+
+    @ResponseBody
+    @PostMapping("/addCompanyPost/{companyId}")
+    public void addCompPost(@PathVariable("companyId") long companyId,@RequestBody Map<String,String> reqBody) throws UserNotFoundException, CustomException {
+        String token=reqBody.get("token");
+        System.out.println("token:"+token);
+        String content=reqBody.get("content");
+        System.out.println("content:"+content);
+        userService.addCompanyPost(companyId,content,token);
+    }
+
+    @ResponseBody
+    @GetMapping("/getConnection/{user_id}/{id}")
+    public Connection getConnection(@PathVariable("user_id") long user_id,@PathVariable("id") long id){
+        return userService.findExistingConnection(user_id,id);
+    }
+
 }

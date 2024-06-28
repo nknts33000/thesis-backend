@@ -497,4 +497,43 @@ public class UserService implements UserDetailsService {
         return posts;
     }
 
+    public void updateComLogo(byte[] fileBytes, long companyId){
+        companyRepo.updateComLogo(fileBytes,companyId);
+    }
+
+    public byte[] getCompanyLogo(long companyId) {
+        return companyRepo.findLogoById(companyId).orElse(null);
+        //profileRepo.findProfilePictureById(user).orElse(null);
+    }
+    public void addCompanyPost(long companyId,String content,String token) throws UserNotFoundException, CustomException {
+        Company company=findCompanyById(companyId);
+        User user= getUserFromToken(token);
+
+        if(company.getAdmins().contains(user) || company.getCreator().equals(user)){
+            postRepo.save(new Post(
+                    content,user,company
+            ));
+        }
+        else{
+            throw new CustomException("You're not an admin of this company's page.");
+        }
+
+    }
+
+    public Connection findExistingConnection(long id1,long id2){
+        User user1 =findUserById(id1);
+        User user2=findUserById(id2);
+        List<Connection> connectionList=connectionRepo.getConnetions(user1,user2);
+        List<Connection> connectionList2=connectionRepo.getConnetions(user2,user1);
+        if(!connectionList.isEmpty()){
+            return connectionList.get(0);
+        } else if (!connectionList2.isEmpty()) {
+            return connectionList2.get(0);
+        }
+        else return null;
+
+
+
+    }
+
 }

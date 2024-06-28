@@ -25,7 +25,10 @@ public class Company {
     private String name;
     @Column(nullable = false)
     private String mission;
-    //private String companyLogo;
+
+    @Lob
+    @Column(name = "company_logo", nullable = true, columnDefinition = "LONGBLOB")
+    private byte[] companyLogo; // Store image as a byte array
 
     @JsonManagedReference
     @OneToMany(mappedBy = "company")

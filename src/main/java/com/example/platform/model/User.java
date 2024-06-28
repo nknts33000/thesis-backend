@@ -92,11 +92,11 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "user1")
     private List<Connection> connectionList=new ArrayList<>();///when the user initiated the connection(1st user column in connection schema)
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "user2")
     private List<Connection> connectionOf=new ArrayList<>();///when the user accepted the connection(2nd user column in connection schema)
 

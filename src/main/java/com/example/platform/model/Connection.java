@@ -1,8 +1,11 @@
 package com.example.platform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.example.platform.model.User;
+
 
 @Entity
 @Getter
@@ -21,10 +24,12 @@ public class Connection {
         return id;
     }
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user1_id",referencedColumnName = "id")
     private User user1;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user2_id",referencedColumnName = "id")
     private User user2;
