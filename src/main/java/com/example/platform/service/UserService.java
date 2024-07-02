@@ -14,9 +14,7 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
-import org.hibernate.internal.log.SubSystemLogging;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.nio.CharBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -273,41 +270,74 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void newFriendRequest(ConnectionDTO connectionDTO) throws UserNotFoundException, CustomException {
+    public Connection newFriendRequest(long initiator_id, long recipient_id) throws UserNotFoundException, CustomException {
 
-        User user1=getUserFromToken(connectionDTO.getToken());
-        User user2=getUser(connectionDTO.getReceipient_email());
+//        User user1=getUserFromToken(connectionDTO.getToken());
+//        User user2=getUser(connectionDTO.getReceipient_email());
+        User user1=findUserById(initiator_id);
+        User user2=findUserById(recipient_id);
         boolean connectionExists=connectionExists(user1,user2);
+        System.out.println("conn exists:"+connectionExists);
         if(!connectionExists){
             Connection connection=new Connection(user1,user2,"Pending");
             connectionRepo.save(connection);
+
+            return findExistingConnection(initiator_id,recipient_id);
         }
         else{
             throw new CustomException("Connection exists");
         }
     }
 
-    public void acceptFriendRequest(ConnectionDTO connectionDTO) throws UserNotFoundException {
-        User user1=getUserFromToken(connectionDTO.getToken());
-        User user2=getUser(connectionDTO.getReceipient_email());
-        boolean isPending=requestPending(user1,user2);
-        if(isPending){
-            connectionRepo.acceptRequest(user1,user2);
+    public Connection acceptFriendRequest(long initiator_id, long recipient_id) throws UserNotFoundException, CustomException {
+//        try{
+//            User user1=findUserById(initiator_id);
+//            User user2=findUserById(recipient_id);
+//            connectionRepo.acceptRequest(user1,user2);
+//            Connection c=findExistingConnection(initiator_id,recipient_id);
+//            System.out.print("conn status: "+c.getConnection_status()+"\n");
+//            return c;
+//        }
+//        catch(Exception e) {
+//            throw new CustomException("no connection");
+//        }
+        try{
+            //User user1=findUserById(initiator_id);
+           // User user2=findUserById(recipient_id);
+            Connection c=findExistingConnection(initiator_id,recipient_id);
+            c.setConnection_status("Friends");
+            connectionRepo.save(c);
+            System.out.print("conn status: "+c.getConnection_status()+"\n");
+            return c;
         }
+        catch(Exception e) {
+            throw new CustomException("no connection");
+        }
+
     }
 
-    public void rejectRequest(ConnectionDTO connectionDTO) throws UserNotFoundException {
-        User user1=getUserFromToken(connectionDTO.getToken());
-        User user2=getUser(connectionDTO.getReceipient_email());
+    public void rejectRequest(long initiator_id,long recipient_id) throws UserNotFoundException {
+//        User user1=getUserFromToken(connectionDTO.getToken());
+//        User user2=getUser(connectionDTO.getReceipient_email());
+        User user1=findUserById(initiator_id);
+        User user2=findUserById(recipient_id);
         boolean isPending=requestPending(user1,user2);
         if(isPending){
             connectionRepo.rejectRequest(user1,user2);
         }
     }
 
-    public void deleteFriend(ConnectionDTO connectionDTO) throws UserNotFoundException {
-        User user1=getUserFromToken(connectionDTO.getToken());
-        User user2=getUser(connectionDTO.getReceipient_email());
+    public void cancelRequest(long initiator_id,long recipient_id){
+        User user1=findUserById(initiator_id);
+        User user2=findUserById(recipient_id);
+        connectionRepo.cancelRequest(user1,user2);
+    }
+
+    public void deleteFriend(long initiator_id,long recipient_id) throws UserNotFoundException {
+//        User user1=getUserFromToken(connectionDTO.getToken());
+//        User user2=getUser(connectionDTO.getReceipient_email());
+        User user1=findUserById(initiator_id);
+        User user2=findUserById(recipient_id);
         connectionRepo.deleteFriend(user1,user2);
     }
 
@@ -530,10 +560,17 @@ public class UserService implements UserDetailsService {
         } else if (!connectionList2.isEmpty()) {
             return connectionList2.get(0);
         }
-        else return null;
+        else {
+            Connection c=new Connection();
+            c.setConnection_status("no_connection");
+            return c;
+        }
 
 
 
     }
 
+    public Advert getAdvertByAdvertId(long advertId) {
+        return advertRepo.findAdvertByAdvertId(advertId);
+    }
 }

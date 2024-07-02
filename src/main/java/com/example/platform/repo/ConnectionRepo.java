@@ -22,9 +22,14 @@ public interface ConnectionRepo extends JpaRepository<Connection,Long> {
 
     @Modifying
     //@Query("UPDATE Connection c SET c.connection_status='Rejected' WHERE c.user1=?1 AND c.user2=?2")
-    @Query("delete from Connection c WHERE c.user1=?1 AND c.user2=?2")
+    @Query("delete from Connection c WHERE (c.user1=?1 AND c.user2=?2) or (c.user1=?2 AND c.user2=?1)")
     void rejectRequest(User user1,User user2);
+
     @Modifying
-    @Query("delete from Connection c WHERE c.user1=?1 AND c.user2=?2")
+    @Query("delete from Connection c WHERE (c.user1=?1 AND c.user2=?2) or (c.user1=?2 AND c.user2=?1)")
+    void cancelRequest(User user1,User user2);
+
+    @Modifying
+    @Query("delete from Connection c WHERE (c.user1=?1 AND c.user2=?2) or (c.user1=?2 AND c.user2=?1)")
     void deleteFriend(User user1,User user2);
 }

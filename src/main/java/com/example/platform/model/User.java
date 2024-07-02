@@ -1,6 +1,7 @@
 package com.example.platform.model;
 
 import com.example.platform.repo.ProfileRepo;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -92,11 +93,11 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    @JsonManagedReference
+    @JsonBackReference
     @OneToMany(mappedBy = "user1")
     private List<Connection> connectionList=new ArrayList<>();///when the user initiated the connection(1st user column in connection schema)
 
-    @JsonManagedReference
+    @JsonBackReference
     @OneToMany(mappedBy = "user2")
     private List<Connection> connectionOf=new ArrayList<>();///when the user accepted the connection(2nd user column in connection schema)
 

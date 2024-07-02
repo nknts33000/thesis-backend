@@ -6,12 +6,10 @@ import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.service.UserService;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,27 +72,40 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping("/add_friend")
-    public void addFriend(@RequestBody ConnectionDTO connectionDTO) throws UserNotFoundException, CustomException {
-        userService.newFriendRequest(connectionDTO);
+    @PostMapping("/add_friend/{initiator_id}/{recipient_id}")
+    public Connection addFriend(@PathVariable("initiator_id") long initiator_id,
+            @PathVariable("recipient_id") long recipient_id) throws UserNotFoundException, CustomException {
+        System.out.println("new friend request");
+        return userService.newFriendRequest(initiator_id,recipient_id);
     }
 
     @ResponseBody
-    @PutMapping("/accept_friend")
-    public void acceptFriend(@RequestBody ConnectionDTO connectionDTO) throws UserNotFoundException {
-        userService.acceptFriendRequest(connectionDTO);
+    @PutMapping("/accept_friend/{initiator_id}/{recipient_id}")
+    public Connection acceptFriend(@PathVariable("initiator_id") long initiator_id,
+                                   @PathVariable("recipient_id") long recipient_id) throws UserNotFoundException, CustomException {
+        System.out.println("accept_friend controller");
+        return userService.acceptFriendRequest(initiator_id,recipient_id);
     }
 
     @ResponseBody
-    @PutMapping("/reject_friend")
-    public void rejectRequest(@RequestBody ConnectionDTO connectionDTO) throws UserNotFoundException {
-        userService.rejectRequest(connectionDTO);
+    @DeleteMapping("/cancel_request/{initiator_id}/{recipient_id}")
+    public void cancel_request(@PathVariable("initiator_id") long initiator_id,
+                               @PathVariable("recipient_id") long recipient_id){
+        userService.cancelRequest(initiator_id,recipient_id);
     }
 
     @ResponseBody
-    @DeleteMapping("/delete_friend")
-    public void deleteFriend(@RequestBody ConnectionDTO connectionDTO) throws UserNotFoundException {
-        userService.deleteFriend(connectionDTO);
+    @PutMapping("/reject_friend/{initiator_id}/{recipient_id}")
+    public void rejectRequest(@PathVariable("initiator_id") long initiator_id,
+                              @PathVariable("recipient_id") long recipient_id) throws UserNotFoundException {
+        userService.rejectRequest(initiator_id,recipient_id);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/delete_friend/{initiator_id}/{recipient_id}")
+    public void deleteFriend(@PathVariable("initiator_id") long initiator_id,
+                             @PathVariable("recipient_id") long recipient_id) throws UserNotFoundException {
+        userService.deleteFriend(initiator_id,recipient_id);
     }
 
     @ResponseBody
@@ -199,6 +210,11 @@ public class UserController {
         return adverts;
     }
 
+    @ResponseBody
+    @GetMapping("/getAdvert/{advertId}")
+    public Advert getAdvert(@PathVariable("advertId") long advertId){
+        return userService.getAdvertByAdvertId(advertId);
+    }
 
     @ResponseBody
     @PostMapping("/createAdvert")
