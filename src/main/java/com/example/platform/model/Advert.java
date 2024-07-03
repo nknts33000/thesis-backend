@@ -2,6 +2,9 @@ package com.example.platform.model;
 
 import com.example.platform.repo.CompanyRepo;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +31,14 @@ public class Advert {
     @JsonBackReference
     @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinTable(name = "APPLICANTS",
-    joinColumns = @JoinColumn(name = "id"),
-    inverseJoinColumns = @JoinColumn(name = "advertId"))
+    joinColumns = @JoinColumn(name = "advertId"),
+    inverseJoinColumns = @JoinColumn(name = "id"))
     private List<User> applicants;
+
+
+    @OneToMany(mappedBy = "advert")
+    @JsonIgnore
+    private List<Resume> resumes;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)

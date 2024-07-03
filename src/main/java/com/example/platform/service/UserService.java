@@ -15,13 +15,19 @@ import com.example.platform.model.*;
 import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.CharBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -45,6 +51,12 @@ public class UserService implements UserDetailsService {
     private final EducationRepo educationRepo;
     private final CompanyRepository companyRepository;
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ResumeRepo resumeRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     @Autowired
     public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
@@ -573,4 +585,43 @@ public class UserService implements UserDetailsService {
     public Advert getAdvertByAdvertId(long advertId) {
         return advertRepo.findAdvertByAdvertId(advertId);
     }
+
+    public Resume saveResume(MultipartFile file, Advert jobAdvertisement,User user) throws IOException {
+        // Create directories if they don't exist
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // Create unique filename
+        String filename = jobAdvertisement.getAdvertId() + "_" + file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(filename);
+
+        // Save file to disk
+        Files.copy(file.getInputStream(), filePath);
+
+        // Save resume metadata
+        Resume resume = new Resume();
+        resume.setFilename(filename);
+        resume.setFilepath(filePath.toString());
+        resume.setJobAdvertisement(jobAdvertisement);
+
+        // Add user to applicants
+        jobAdvertisement.getApplicants().add(user);
+        user.getApplications().add(jobAdvertisement);
+
+        // Save changes to the database
+        advertRepo.save(jobAdvertisement); // Make sure to save the updated Advert
+        userRepo.save(user); // Save the updated User to ensure the relationship is stored
+
+
+        return resumeRepository.save(resume);
+    }
+
+    public List<Resume> getResumesByJobAdvertisement(long jobAdvertisementId) {
+        Advert advert=findAdvertByAdvertId(jobAdvertisementId);
+        return advert.getResumes();
+        //return resumeRepository.findByAdvert_AdvertId(jobAdvertisementId);
+    }
+
 }

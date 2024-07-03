@@ -362,6 +362,14 @@ public class UserController {
     }
 
     @ResponseBody
+    @GetMapping("/getOwner/{companyId}")
+    public User getOwnerByCompanyId(@PathVariable("companyId") long companyId){
+        Company company=userService.findCompanyById(companyId);
+        User user = findUserById(company.getCreator().getId());
+        return user;
+    }
+
+    @ResponseBody
     @GetMapping("/findUser/{id}")
     public User findUserById(@PathVariable("id") long id){
         User user=userService.findUserById(id);
@@ -404,6 +412,34 @@ public class UserController {
     @GetMapping("/getConnection/{user_id}/{id}")
     public Connection getConnection(@PathVariable("user_id") long user_id,@PathVariable("id") long id){
         return userService.findExistingConnection(user_id,id);
+    }
+
+    @PostMapping("/submitResume/{advertId}/{user_id}")
+    public ResponseEntity<String> submitResume(@PathVariable long advertId,@PathVariable long user_id, @RequestParam("resume") MultipartFile resume) {
+        try {
+            Advert jobAdvertisementOpt = userService.getAdvertByAdvertId(advertId);
+            User user =findUserById(user_id);
+            try {
+                if(user!=null){
+                    userService.saveResume(resume, jobAdvertisementOpt,user);
+                    return ResponseEntity.ok("Resume submitted successfully!");
+                }
+                else return ResponseEntity.status(404).body("User not found");
+            } catch (IOException e) {
+                return ResponseEntity.status(500).body("Failed to submit resume.");
+            }
+
+        }
+        catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/getResumes/{advertId}")
+    public ResponseEntity<List<Resume>> getResumes(@PathVariable("advertId") long advertId) {
+        List<Resume> resumes = userService.getResumesByJobAdvertisement(advertId);
+        System.out.println(resumes);
+        return ResponseEntity.ok(resumes);
     }
 
 }
