@@ -21,7 +21,7 @@ public class Post implements Serializable {
     @Column(name = "postId") // changed from post_id to postId so i could the method in postRepo would recognize the field
     private long postId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",referencedColumnName = "id")
     @JsonBackReference
     private User user;

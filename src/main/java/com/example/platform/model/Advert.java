@@ -29,10 +29,12 @@ public class Advert {
 
 
     @JsonBackReference
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinTable(name = "APPLICANTS",
-    joinColumns = @JoinColumn(name = "advertId"),
-    inverseJoinColumns = @JoinColumn(name = "id"))
+    @ManyToMany//(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "applications",
+            joinColumns = @JoinColumn(name = "advert_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> applicants;
 
 
@@ -41,7 +43,7 @@ public class Advert {
     private List<Resume> resumes;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="companyId",referencedColumnName = "companyId")
     private Company company;
 

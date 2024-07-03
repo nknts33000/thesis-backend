@@ -416,11 +416,14 @@ public class UserController {
 
     @PostMapping("/submitResume/{advertId}/{user_id}")
     public ResponseEntity<String> submitResume(@PathVariable long advertId,@PathVariable long user_id, @RequestParam("resume") MultipartFile resume) {
+        System.out.println("in the resume controller");
         try {
             Advert jobAdvertisementOpt = userService.getAdvertByAdvertId(advertId);
             User user =findUserById(user_id);
+//            System.out.println("user="+user);
             try {
                 if(user!=null){
+                    System.out.println("in if statement");
                     userService.saveResume(resume, jobAdvertisementOpt,user);
                     return ResponseEntity.ok("Resume submitted successfully!");
                 }
@@ -441,5 +444,11 @@ public class UserController {
         System.out.println(resumes);
         return ResponseEntity.ok(resumes);
     }
+
+    @GetMapping("/getCompanyOfAdvert/{advertId}")
+    public Company getCompanyOfAdvert(@PathVariable long advertId){
+        return userService.getCompanyOfAdvert(advertId);
+    }
+
 
 }

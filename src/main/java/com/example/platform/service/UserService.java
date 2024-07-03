@@ -52,8 +52,7 @@ public class UserService implements UserDetailsService {
     private final CompanyRepository companyRepository;
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ResumeRepo resumeRepository;
+    private final ResumeRepo resumeRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -62,7 +61,7 @@ public class UserService implements UserDetailsService {
     public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
-                       EducationRepo educationRepo,CompanyRepository companyRepository){
+                       EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -75,7 +74,7 @@ public class UserService implements UserDetailsService {
         this.exprerienceRepo=exprerienceRepo;
         this.educationRepo=educationRepo;
         this.companyRepository=companyRepository;
-
+        this.resumeRepository=resumeRepository;
     }
 
 
@@ -606,9 +605,13 @@ public class UserService implements UserDetailsService {
         resume.setFilepath(filePath.toString());
         resume.setJobAdvertisement(jobAdvertisement);
 
+        System.out.println("in the resume service");
+
         // Add user to applicants
         jobAdvertisement.getApplicants().add(user);
         user.getApplications().add(jobAdvertisement);
+
+
 
         // Save changes to the database
         advertRepo.save(jobAdvertisement); // Make sure to save the updated Advert
@@ -622,6 +625,11 @@ public class UserService implements UserDetailsService {
         Advert advert=findAdvertByAdvertId(jobAdvertisementId);
         return advert.getResumes();
         //return resumeRepository.findByAdvert_AdvertId(jobAdvertisementId);
+    }
+
+    public Company getCompanyOfAdvert(long advertId){
+        Advert advert=findAdvertByAdvertId(advertId);
+        return advert.getCompany();
     }
 
 }
