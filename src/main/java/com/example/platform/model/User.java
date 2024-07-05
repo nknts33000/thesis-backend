@@ -141,6 +141,15 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Resume> resumes;
 
+    @JsonBackReference
+    @OneToMany(mappedBy = "sender")
+    private List<Message> sentMessages;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "receiver")
+    private List<Message> receivedMessages;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -56,6 +56,8 @@ public class UserService implements UserDetailsService {
 
     private final ResumeRepo resumeRepository;
 
+    private final MessageRepo messageRepo;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -63,7 +65,7 @@ public class UserService implements UserDetailsService {
     public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
-                       EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository){
+                       EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository,MessageRepo messageRepo){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -77,6 +79,7 @@ public class UserService implements UserDetailsService {
         this.educationRepo=educationRepo;
         this.companyRepository=companyRepository;
         this.resumeRepository=resumeRepository;
+        this.messageRepo=messageRepo;
     }
 
 
@@ -703,5 +706,14 @@ public class UserService implements UserDetailsService {
     public List<Resume> getResumesOfAdvert(long advertId) {
         Advert advert=findAdvertByAdvertId(advertId);
         return advert.getResumes();
+    }
+
+
+    public Message sendMessage(Message message) {
+        return messageRepo.save(message);
+    }
+
+    public List<Message> getMessagesBetweenUsers(long senderId, long receiverId) {
+        return messageRepo.findBySenderIdAndReceiverId(senderId, receiverId);
     }
 }

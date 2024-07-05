@@ -480,4 +480,14 @@ public class UserController {
         public List<Resume> getResumesOfAdvert(@PathVariable long advertId){
         return userService.getResumesOfAdvert(advertId);
     }
+
+    @PostMapping
+    public Message sendMessage(@RequestBody Message message) {
+        return userService.sendMessage(message);
+    }
+
+    @GetMapping("/between/{senderId}/{receiverId}")
+    public List<Message> getMessagesBetweenUsers(@PathVariable long senderId, @PathVariable long receiverId) {
+        return userService.getMessagesBetweenUsers(senderId, receiverId);
+    }
 }
