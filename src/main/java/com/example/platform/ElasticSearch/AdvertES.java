@@ -12,18 +12,18 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Setting;
 
 @Document(indexName = "advertindex")
-@Setting(settingPath = "/elasticsearch-settings.json")
 @Getter
 @Setter
+@Setting(settingPath = "elasticsearch-settings.json") // specify the path to your settings file
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AdvertES {
     @Id
     private String id;
-    @Field(type = FieldType.Text,name = "jobTitle",analyzer = "stem_analyzer")
+    @Field(type = FieldType.Text, name = "jobTitle", analyzer = "custom_analyzer")
     private String jobTitle;
-    @Field(type = FieldType.Text,name = "jobSummary",analyzer = "stem_analyzer")
+    @Field(type = FieldType.Text, name = "jobSummary", analyzer = "custom_analyzer")
     private String jobSummary;
     @Field(type = FieldType.Text,name = "location")
     private String location;

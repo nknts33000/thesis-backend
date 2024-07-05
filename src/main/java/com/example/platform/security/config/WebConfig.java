@@ -9,12 +9,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
 @Configuration
 @EnableWebMvc
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
     //FilterRegistrationBean
     @Bean
     public FilterRegistrationBean corsFilterRegistration(){
@@ -38,6 +40,12 @@ public class WebConfig {
         FilterRegistrationBean filterRegistrationBean=new FilterRegistrationBean(new CorsFilter(source));
         filterRegistrationBean.setOrder(-102);
         return filterRegistrationBean;
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:src/main/resources/uploads/");
     }
 
 }

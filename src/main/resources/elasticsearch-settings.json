@@ -1,11 +1,16 @@
 {
-  "settings": {
+  "index": {
     "analysis": {
       "analyzer": {
-        "stem_analyzer": {
+        "custom_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
           "filter": ["lowercase", "porter_stem"]
+        }
+      },
+      "filter": {
+        "porter_stem": {
+          "type": "porter_stem"
         }
       }
     }

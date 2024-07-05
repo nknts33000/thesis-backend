@@ -24,10 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.CharBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -585,41 +587,93 @@ public class UserService implements UserDetailsService {
         return advertRepo.findAdvertByAdvertId(advertId);
     }
 
-    public Resume saveResume(MultipartFile file, Advert jobAdvertisement,User user) throws IOException {
-        // Create directories if they don't exist
+//    public Resume saveResume(MultipartFile file, Advert jobAdvertisement,User user) throws IOException {
+//        // Create directories if they don't exist
+//        Path uploadPath = Paths.get(uploadDir);
+//        if (!Files.exists(uploadPath)) {
+//            Files.createDirectories(uploadPath);
+//        }
+//
+//
+//        // Create unique filename
+//        String filename = jobAdvertisement.getAdvertId() + "_" + file.getOriginalFilename();
+//        Path filePath = uploadPath.resolve(filename);
+//        System.out.println("resume service");
+//
+//        // Save file to disk
+//        Files.copy(file.getInputStream(), filePath);
+//
+//        // Save resume metadata
+//        Resume resume = new Resume();
+//        resume.setFilename(filename);
+//        resume.setFilepath(filePath.toString());
+//        resume.setJobAdvertisement(jobAdvertisement);
+//        resume.setUser(user);
+//
+//
+//
+//
+//        // Add user to applicants
+//        jobAdvertisement.getApplicants().add(user);
+//        user.getApplications().add(jobAdvertisement);
+//        //user.getResumes().add(resume);
+//
+//
+//        // Save changes to the database
+//        advertRepo.save(jobAdvertisement); // Make sure to save the updated Advert
+//        userRepo.save(user); // Save the updated User to ensure the relationship is stored
+//
+//
+//        return resumeRepository.save(resume);
+//    }
+
+
+    public Resume saveResume(MultipartFile file, Advert jobAdvertisement, User user) throws IOException {
+        // Ensure the upload directory exists
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Create unique filename
+        // Create a unique filename
         String filename = jobAdvertisement.getAdvertId() + "_" + file.getOriginalFilename();
         Path filePath = uploadPath.resolve(filename);
 
-        // Save file to disk
-        Files.copy(file.getInputStream(), filePath);
+        // Detailed logging
+        System.out.println("Upload Directory: " + uploadPath.toString());
+        System.out.println("File Path: " + filePath.toString());
+
+        // Save file to disk with detailed error logging
+        try (InputStream inputStream = file.getInputStream()) {
+            if (file.isEmpty() || inputStream.available() <= 0) {
+                throw new IOException("Uploaded file is empty or invalid: " + file.getOriginalFilename());
+            }
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("File saved successfully: " + filePath.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IOException("Failed to save file: " + filename, e);
+        }
 
         // Save resume metadata
         Resume resume = new Resume();
         resume.setFilename(filename);
         resume.setFilepath(filePath.toString());
         resume.setJobAdvertisement(jobAdvertisement);
-
-        System.out.println("in the resume service");
+        resume.setUser(user);
 
         // Add user to applicants
         jobAdvertisement.getApplicants().add(user);
         user.getApplications().add(jobAdvertisement);
 
-
-
         // Save changes to the database
-        advertRepo.save(jobAdvertisement); // Make sure to save the updated Advert
-        userRepo.save(user); // Save the updated User to ensure the relationship is stored
-
+        advertRepo.save(jobAdvertisement); // Save the updated Advert
+        userRepo.save(user); // Save the updated User
 
         return resumeRepository.save(resume);
     }
+
+
 
     public List<Resume> getResumesByJobAdvertisement(long jobAdvertisementId) {
         Advert advert=findAdvertByAdvertId(jobAdvertisementId);
@@ -632,4 +686,22 @@ public class UserService implements UserDetailsService {
         return advert.getCompany();
     }
 
+    public boolean userApplied(long advertId,long user_id){
+        User user=findUserById(user_id);
+        Advert advert=findAdvertByAdvertId(advertId);
+        if(advert.getApplicants().contains(user)) return true;
+        else return false;
+    }
+
+    public boolean isAdminOrCreator(long id,long companyId){
+        User user=findUserById(id);
+        Company company=findCompanyById(companyId);
+        if (company.getCreator().equals(user)) return true;
+        else return false;
+    }
+
+    public List<Resume> getResumesOfAdvert(long advertId) {
+        Advert advert=findAdvertByAdvertId(advertId);
+        return advert.getResumes();
+    }
 }

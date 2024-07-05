@@ -137,6 +137,10 @@ public class User implements Serializable, UserDetails {
             inverseJoinColumns = @JoinColumn(name = "group_id"))
     private Set<Group> groups;
 
+    @JsonBackReference
+    @OneToMany(mappedBy = "user")
+    private List<Resume> resumes;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

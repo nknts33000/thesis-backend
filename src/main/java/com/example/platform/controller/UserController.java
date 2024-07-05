@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,7 +96,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @PutMapping("/reject_friend/{initiator_id}/{recipient_id}")
+    @DeleteMapping("/reject_friend/{initiator_id}/{recipient_id}")
     public void rejectRequest(@PathVariable("initiator_id") long initiator_id,
                               @PathVariable("recipient_id") long recipient_id) throws UserNotFoundException {
         userService.rejectRequest(initiator_id,recipient_id);
@@ -424,7 +425,8 @@ public class UserController {
             try {
                 if(user!=null){
                     System.out.println("in if statement");
-                    userService.saveResume(resume, jobAdvertisementOpt,user);
+                    Resume resume1=userService.saveResume(resume, jobAdvertisementOpt,user);
+                    System.out.println("resume user:"+resume1.getUser());
                     return ResponseEntity.ok("Resume submitted successfully!");
                 }
                 else return ResponseEntity.status(404).body("User not found");
@@ -438,17 +440,44 @@ public class UserController {
         }
     }
 
+//    @GetMapping("/getResumes/{advertId}")
+//    public ResponseEntity<List<Resume>> getResumes(@PathVariable("advertId") long advertId) {
+//        List<Resume> resumes = userService.getResumesByJobAdvertisement(advertId);
+//        System.out.println(resumes);
+//        return ResponseEntity.ok(resumes);
+//    }
+
+    // Example method to fetch resumes by advertisement ID
     @GetMapping("/getResumes/{advertId}")
-    public ResponseEntity<List<Resume>> getResumes(@PathVariable("advertId") long advertId) {
-        List<Resume> resumes = userService.getResumesByJobAdvertisement(advertId);
-        System.out.println(resumes);
+    public ResponseEntity<List<Resume>> getResumesByAdvertId(@PathVariable long advertId) {
+        List<Resume> resumes = userService.getResumesOfAdvert(advertId);
+        // Assuming filepath is stored relative to uploads directory
+        resumes.forEach(resume -> {
+            String filename = resume.getFilename(); // Get filename from resume object
+            String fullUrl = "/uploads/" + filename; // Construct full URL
+            resume.setFilepath(fullUrl); // Set full URL to the resume object
+        });
         return ResponseEntity.ok(resumes);
     }
+
 
     @GetMapping("/getCompanyOfAdvert/{advertId}")
     public Company getCompanyOfAdvert(@PathVariable long advertId){
         return userService.getCompanyOfAdvert(advertId);
     }
 
+    @GetMapping("/hasSubmittedResume/{advertId}/{user_id}")
+    public boolean resumeSubmited(@PathVariable long advertId,@PathVariable long user_id){
+        return userService.userApplied(advertId,user_id);
+    }
 
+    @GetMapping("/isAdmin/{id}/{companyId}")
+    public boolean isAdmin(@PathVariable long id,@PathVariable long companyId){
+        return userService.isAdminOrCreator(id,companyId);
+    }
+
+    @GetMapping("/resumes/{advertId}")
+        public List<Resume> getResumesOfAdvert(@PathVariable long advertId){
+        return userService.getResumesOfAdvert(advertId);
+    }
 }
