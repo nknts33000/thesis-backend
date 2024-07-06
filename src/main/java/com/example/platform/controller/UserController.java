@@ -481,9 +481,11 @@ public class UserController {
         return userService.getResumesOfAdvert(advertId);
     }
 
-    @PostMapping
-    public Message sendMessage(@RequestBody Message message) {
-        return userService.sendMessage(message);
+    @PostMapping("/sendMessage/{sender_id}/{receiver_id}")
+    public void sendMessage(@RequestBody Map<String,String> reqBody,@PathVariable long sender_id,@PathVariable long receiver_id) {
+        String content= reqBody.get("content");
+        System.out.println("content:"+content);
+        userService.sendMessage(content,sender_id,receiver_id);
     }
 
     @GetMapping("/between/{senderId}/{receiverId}")

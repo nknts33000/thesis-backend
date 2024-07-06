@@ -14,6 +14,7 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -709,11 +710,37 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public Message sendMessage(Message message) {
-        return messageRepo.save(message);
+    public void sendMessage(String content,long sender_id,long receiver_id) {
+        User sender=findUserById(sender_id);
+        User receiver=findUserById(receiver_id);
+        messageRepo.save(
+                new Message(sender,receiver,content)
+        );
     }
 
+//    public List<Message> getMessagesBetweenUsers(long senderId, long receiverId) {
+//        List<Message> first_list= messageRepo.findBySenderIdAndReceiverId(senderId, receiverId); //list with the messages the sender has sent
+//        List<Message> second_list= messageRepo.findBySenderIdAndReceiverId(receiverId, senderId); //list with the messages the receiver has sent
+//
+//    }
+
     public List<Message> getMessagesBetweenUsers(long senderId, long receiverId) {
-        return messageRepo.findBySenderIdAndReceiverId(senderId, receiverId);
+        // Retrieve messages sent from sender to receiver
+//        List<Message> firstList = messageRepo.findBySenderIdAndReceiverId(senderId, receiverId);
+//
+//        // Retrieve messages sent from receiver to sender
+//        List<Message> secondList = messageRepo.findBySenderIdAndReceiverId(receiverId, senderId);
+
+        // Combine the lists
+        User sender=findUserById(senderId);
+        User receiver=findUserById(receiverId);
+        List<Message> combinedList = messageRepo.getAllMessages(sender,receiver);//new ArrayList<>(firstList);
+        //combinedList.addAll(secondList);
+
+        // Sort the combined list by timestamp
+        combinedList.sort(Comparator.comparing(Message::getTimestamp));
+
+        System.out.println(combinedList);
+        return combinedList;
     }
 }
