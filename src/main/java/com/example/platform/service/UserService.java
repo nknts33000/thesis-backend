@@ -33,7 +33,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -732,6 +734,9 @@ public class UserService implements UserDetailsService {
 //        List<Message> secondList = messageRepo.findBySenderIdAndReceiverId(receiverId, senderId);
 
         // Combine the lists
+
+        System.out.println("sender:" + senderId);
+        System.out.println("receiver:"+receiverId);
         User sender=findUserById(senderId);
         User receiver=findUserById(receiverId);
         List<Message> combinedList = messageRepo.getAllMessages(sender,receiver);//new ArrayList<>(firstList);
@@ -743,4 +748,34 @@ public class UserService implements UserDetailsService {
         System.out.println(combinedList);
         return combinedList;
     }
+
+
+    public Map<User,List<Message>> findConvosOfUser(long user_id){
+        User current_user=findUserById(user_id);
+        List<User> usersOfConvos= messageRepo.findDistinctConversationUsers(current_user); // find all the users this one has had conversations with
+        Map<User,List<Message>> convos=new HashMap<>();
+        for (User user:usersOfConvos){
+            List<Message> messages= getMessagesBetweenUsers(user_id,user.getId());
+            convos.put(user,messages);
+        }
+        convos= convos.entrySet().stream()
+                .sorted((entry1, entry2) -> {
+                    // Get the last message timestamps
+                    LocalDateTime lastTimestamp1 = entry1.getValue().get(entry1.getValue().size() - 1).getTimestamp();
+                    LocalDateTime lastTimestamp2 = entry2.getValue().get(entry2.getValue().size() - 1).getTimestamp();
+
+                    // Compare them
+                    return lastTimestamp2.compareTo(lastTimestamp1);
+                })
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new // Keeps the sorted order
+                ));
+
+        return convos;
+
+    }
+
 }

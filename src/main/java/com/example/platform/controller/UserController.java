@@ -492,4 +492,9 @@ public class UserController {
     public List<Message> getMessagesBetweenUsers(@PathVariable long senderId, @PathVariable long receiverId) {
         return userService.getMessagesBetweenUsers(senderId, receiverId);
     }
+
+    @GetMapping("/getConvos/{user_id}")
+    public Map<User,List<Message>> getConvosOfUser(@PathVariable long user_id){
+        return userService.findConvosOfUser(user_id);
+    }
 }

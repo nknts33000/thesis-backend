@@ -19,4 +19,10 @@ public interface MessageRepo extends JpaRepository<Message, Long> {
 
     @Query("select m from Message m where (m.sender=?1 and m.receiver=?2) or (m.sender=?2 and m.receiver=?1)")
     List<Message> getAllMessages(User sender, User receiver);
+
+    // Find all distinct users who have had conversations with the given user
+    @Query("SELECT DISTINCT m.sender FROM Message m WHERE m.receiver = :user " +
+            "UNION " +
+            "SELECT DISTINCT m.receiver FROM Message m WHERE m.sender = :user")
+    List<User> findDistinctConversationUsers(User user);
 }
