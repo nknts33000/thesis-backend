@@ -494,7 +494,12 @@ public class UserController {
     }
 
     @GetMapping("/getConvos/{user_id}")
-    public Map<User,List<Message>> getConvosOfUser(@PathVariable long user_id){
+    public Map<String,List<Message>> getConvosOfUser(@PathVariable long user_id){
         return userService.findConvosOfUser(user_id);
+    }
+
+    @GetMapping("/pendingRequests/{userId}")
+    public List<Connection> getPendingFriendRequests(@PathVariable long userId) {
+        return userService.getPendingFriendRequests(userId);
     }
 }

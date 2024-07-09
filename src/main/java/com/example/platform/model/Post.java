@@ -31,7 +31,7 @@ public class Post implements Serializable {
     @JsonBackReference
     private Company company;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 5000)
     private String content;
 
     @Column(nullable = false)

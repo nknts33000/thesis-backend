@@ -32,4 +32,7 @@ public interface ConnectionRepo extends JpaRepository<Connection,Long> {
     @Modifying
     @Query("delete from Connection c WHERE (c.user1=?1 AND c.user2=?2) or (c.user1=?2 AND c.user2=?1)")
     void deleteFriend(User user1,User user2);
+
+    @Query("select c from Connection c where c.user2=?1 and c.connection_status='Pending' ORDER BY c.created_at DESC")
+    List<Connection> getPendingRequestsOfUser2(User recipient);
 }

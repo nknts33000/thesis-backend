@@ -39,7 +39,4 @@ public class Comment {
         comment_date= LocalDateTime.now();
     }
 
-//    public User getUser(){
-//        return this.user;
-//    }
 }

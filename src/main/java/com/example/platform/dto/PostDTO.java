@@ -14,8 +14,12 @@ import java.util.List;
 @Setter
 public class PostDTO {
     private Post post;
+
+    //to be replaced by user after the Post component is made in the front end.
     private String firstname;
     private String lastname;
     private String picture_url;
-    private List<CommentDTO> comments;
+    //
+
+    private List<CommentDTO> comments;//to be replaced by comment
 }

@@ -6,9 +6,11 @@ import com.example.platform.exceptions.UserExistsException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.Advert;
 import com.example.platform.model.Company;
+import com.example.platform.model.Post;
 import com.example.platform.model.User;
 import com.example.platform.repo.AdvertRepo;
 import com.example.platform.repo.CompanyRepo;
+import com.example.platform.repo.PostRepo;
 import com.example.platform.repo.UserRepo;
 import com.example.platform.service.UserService;
 import com.github.javafaker.Faker;
@@ -34,14 +36,18 @@ public class DataLoader implements CommandLineRunner {
     private final UserSearchingService userSearchingService;
     private final CompanyService companyService;
 
+    private final PostRepo postRepo;
+
     @Autowired
-    public DataLoader(CompanyRepo companyRepository, AdvertRepo advertRepository, UserService userService,AdvertService advertService,UserSearchingService userSearchingService,CompanyService companyService) {
+    public DataLoader(CompanyRepo companyRepository, AdvertRepo advertRepository, UserService userService,AdvertService advertService,UserSearchingService userSearchingService,
+                      CompanyService companyService, PostRepo postRepo) {
         this.companyRepository = companyRepository;
         this.advertRepository = advertRepository;
         this.userService=userService;
         this.advertService=advertService;
         this.userSearchingService=userSearchingService;
         this.companyService=companyService;
+        this.postRepo=postRepo;
     }
 
     @Override
@@ -56,11 +62,7 @@ public class DataLoader implements CommandLineRunner {
 //                String email = faker.internet().emailAddress();
 //                String password = faker.internet().password();
 //                String location = faker.address().city();
-//                //String roles = "USER";
 //
-//                //User user = new User(email, password, firstName, lastName, location);
-//                //user.setRoles(roles);
-////                userRepository.save(user);
 //                User user=userService.addUser(
 //                        new RegistrationDTO(email,password,firstName,lastName,location)
 //                );
@@ -71,7 +73,7 @@ public class DataLoader implements CommandLineRunner {
 //                                user.getLastname()
 //                        )
 //                );
-//                //User user=userService.getUser(email);
+//
 //
 //                // Write user data to file
 //                writer.write(String.format("User %d: %s %s, Email: %s, Password: %s, Location: %s", i + 1, firstName, lastName, email, password, location + "\n"));
@@ -81,21 +83,17 @@ public class DataLoader implements CommandLineRunner {
 //                for (int j = 0; j < numOfCompanies; j++) {
 //                    String companyName = faker.company().name();
 //                    String mission = faker.company().catchPhrase();
-//
-//                    //Company company = new Company(companyName, mission, user);
 //                    Company company=companyRepository.save(new Company(companyName, mission, user));
 //                    companyService.saveCompany(
 //                            new CompanyES(Long.toString(company.getCompanyId()),company.getName())
 //                    );
 //                    // Write company data to file
-//                   // writer.write(String.format("  Company %d: %s, Mission: %s%n", j + 1, companyName, mission));
 //
 //                    // Create Adverts for the Company
 //                    int numOfAdverts = faker.number().numberBetween(1, 5);
 //                    Set<Advert> adverts = new HashSet<>();
 //                    for (int k = 0; k < numOfAdverts; k++) {
 //                        String jobTitle = faker.job().title();
-//                        //String jobSummary = faker.lorem().paragraph();
 //                        String jobSummary = faker.job().keySkills() + " required. " + faker.job().position();
 //                        String jobLocation = faker.address().city();
 //                        String contactInformation = faker.internet().emailAddress();
@@ -111,12 +109,29 @@ public class DataLoader implements CommandLineRunner {
 //                                )
 //                        );
 //                        // Write advert data to file
-//                        //writer.write(String.format("    Advert %d: Job Title: %s, Job Summary: %s, Location: %s, Contact Information: %s%n", k + 1, jobTitle, jobSummary, jobLocation, contactInformation));
 //                    }
 //
 //                    company.setAdverts(adverts);
 //                    companyRepository.save(company);
+//
+//
+////                 // Create Company-associated Posts
+//                    int numOfCompanyPosts = faker.number().numberBetween(1, 3);
+//                    for (int p = 0; p < numOfCompanyPosts; p++) {
+//                        String content = faker.lorem().paragraph();
+//                        Post post = new Post(content, user, company);
+//                        postRepo.save(post);
+//                    }
 //                }
+//
+//                // Create User-associated Posts
+//                int numOfUserPosts = faker.number().numberBetween(1, 5);
+//                for (int p = 0; p < numOfUserPosts; p++) {
+//                    String content = faker.lorem().paragraph();
+//                    Post post = new Post(content, user);
+//                    postRepo.save(post);
+//                }
+//
 //            }
 //        } catch (IOException e) {
 //            e.printStackTrace();

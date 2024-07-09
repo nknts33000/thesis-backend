@@ -14,6 +14,8 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -750,21 +752,60 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public Map<User,List<Message>> findConvosOfUser(long user_id){
-        User current_user=findUserById(user_id);
-        List<User> usersOfConvos= messageRepo.findDistinctConversationUsers(current_user); // find all the users this one has had conversations with
-        Map<User,List<Message>> convos=new HashMap<>();
-        for (User user:usersOfConvos){
-            List<Message> messages= getMessagesBetweenUsers(user_id,user.getId());
-            convos.put(user,messages);
+//    public Map<String,List<Message>> findConvosOfUser(long user_id){
+//        User current_user=findUserById(user_id);
+//        List<User> usersOfConvos= messageRepo.findDistinctConversationUsers(current_user); // find all the users this one has had conversations with
+//        Map<String,List<Message>> convos=new HashMap<>();
+//        for (User user:usersOfConvos){
+//            List<Message> messages= getMessagesBetweenUsers(user_id,user.getId());
+//            convos.put(convertUserToJson(user),messages);
+//        }
+//        convos= convos.entrySet().stream()
+//                .sorted((entry1, entry2) -> {
+//                    // Get the last message timestamps
+//                    LocalDateTime lastTimestamp1 = entry1.getValue().get(entry1.getValue().size() - 1).getTimestamp();
+//                    LocalDateTime lastTimestamp2 = entry2.getValue().get(entry2.getValue().size() - 1).getTimestamp();
+//
+//                    // Compare them
+//                    return lastTimestamp2.compareTo(lastTimestamp1);
+//                })
+//                .collect(Collectors.toMap(
+//                        Map.Entry::getKey,
+//                        Map.Entry::getValue,
+//                        (e1, e2) -> e1,
+//                        LinkedHashMap::new // Keeps the sorted order
+//                ));
+//
+//        return convos;
+//
+//    }
+
+
+    public Map<String, List<Message>> findConvosOfUser(long user_id) {
+        User current_user = findUserById(user_id);
+        List<User> usersOfConvos = messageRepo.findDistinctConversationUsers(current_user); // find all the users this one has had conversations with
+        Map<String, List<Message>> convos = new HashMap<>();
+
+        for (User user : usersOfConvos) {
+            List<Message> messages = getMessagesBetweenUsers(user_id, user.getId());
+            convos.put(convertUserToJson(user), messages);
         }
-        convos= convos.entrySet().stream()
+
+        convos = convos.entrySet().stream()
                 .sorted((entry1, entry2) -> {
-                    // Get the last message timestamps
+                    // Debugging: Print out the users and timestamps being compared
+                    System.out.println("Comparing " + entry1.getKey() + " and " + entry2.getKey());
+                    if (entry1.getValue().isEmpty() || entry2.getValue().isEmpty()) {
+                        // Handle empty message lists gracefully
+                        return entry1.getValue().isEmpty() ? 1 : -1;
+                    }
+
                     LocalDateTime lastTimestamp1 = entry1.getValue().get(entry1.getValue().size() - 1).getTimestamp();
                     LocalDateTime lastTimestamp2 = entry2.getValue().get(entry2.getValue().size() - 1).getTimestamp();
 
-                    // Compare them
+                    // Debugging: Print out the timestamps being compared
+                    System.out.println("Timestamps: " + lastTimestamp1 + " vs " + lastTimestamp2);
+
                     return lastTimestamp2.compareTo(lastTimestamp1);
                 })
                 .collect(Collectors.toMap(
@@ -774,8 +815,28 @@ public class UserService implements UserDetailsService {
                         LinkedHashMap::new // Keeps the sorted order
                 ));
 
-        return convos;
+        // Debugging: Print out the final sorted map
+        System.out.println("Sorted Conversations: ");
+        convos.forEach((key, value) -> System.out.println(key + ": " + value.get(value.size() - 1).getContent()));
 
+        return convos;
+    }
+
+
+    // Helper method to convert User to JSON
+    private String convertUserToJson(User user) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(user);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "{}";
+        }
+    }
+
+    public List<Connection> getPendingFriendRequests(long userId) {
+        User user = findUserById(userId);
+        return connectionRepo.getPendingRequestsOfUser2(user);
     }
 
 }
