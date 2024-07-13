@@ -24,6 +24,7 @@ public class Profile {
     @Column(name = "profile_picture", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] profilePicture; // Store image as a byte array
     private String headline;
+    @Column(length = 5000)
     private String summary;
     private String industry;
 

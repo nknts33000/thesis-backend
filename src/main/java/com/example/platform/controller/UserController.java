@@ -8,6 +8,9 @@ import com.example.platform.model.*;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -116,54 +121,17 @@ public class UserController {
         System.out.println(token);
         List<Post> friendsPosts = userService.getPostsOfFriends(token);
 
-        // Fetch profiles for all users in the friend's posts
-        Map<User, Profile> userProfiles = friendsPosts.stream()
-                .map(Post::getUser)
-                .distinct() // Ensure unique users
-                .collect(Collectors.toMap(
-                        user -> user,
-                        user -> user.getProfile() // Access the profile directly from the user entity
-                ));
-
         // Create PostDTO objects with corresponding profiles
-        Set<PostDTO> sortedPostsWithUsers = friendsPosts.stream()
-                .sorted(Comparator.comparing(Post::getPost_date).reversed())
-                .map(post -> {
-                    User user = userService.getUserByPost(post);
-                    Profile profile = userProfiles.get(userService.findUserById(user.getId()));
-                    List<Comment> comments= userService.getComments(post.getPostId()).stream()
-                            .sorted(Comparator.comparing(Comment::getComment_date).reversed())
-                            .toList();
-                    List<CommentDTO> commentdtos=new ArrayList<>();
-                    for(Comment c:comments){
-                        commentdtos.add(
-                                new CommentDTO(
-                                        c.getUser().getFirstname(),
-                                        c.getUser().getLastname(),
-                                        c.getContent(),
-                                        c.getUser().getProfile().getPicture_url())
-                        );
-                    }
-
-                    return new PostDTO(
-                            post,
-                            user.getFirstname(),
-                            user.getLastname(),
-                            profile.getPicture_url(),
-                            commentdtos);
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<PostDTO> sortedPostsWithUsers = userService.postsToPostDTO(friendsPosts);
 
         return sortedPostsWithUsers;
     }
 
     @ResponseBody
-    @PostMapping("/addComment")
-    public void addComment(@RequestBody Map<String,String> requestBody) throws UserNotFoundException {
-        String token=requestBody.get("token");
-        long post_id= parseLong(requestBody.get("post_id"));
-        String content= requestBody.get("content");
-        userService.addCommentToPost(token,post_id,content);
+    @PostMapping("/addComment/{post_id}/{user_id}")
+    public void addComment(@RequestBody Map<String,String> reqBody,@PathVariable long post_id,@PathVariable long user_id) throws UserNotFoundException {
+        String content=reqBody.get("content");
+        userService.addCommentToPost(user_id,post_id,content);
     }
 
     @ResponseBody
@@ -303,8 +271,9 @@ public class UserController {
 
     @ResponseBody
     @GetMapping("/getPosts/{id}")
-    public List<Post> getPostsOfUser(@PathVariable("id") long id){
-        return userService.getPostsOfUser(id);
+    public Set<PostDTO> getPostsOfUser(@PathVariable("id") long id){
+        List<Post> profile_posts= userService.getPostsOfUser(id);
+        return userService.postsToPostDTO(profile_posts);
     }
 
     @ResponseBody
@@ -440,12 +409,6 @@ public class UserController {
         }
     }
 
-//    @GetMapping("/getResumes/{advertId}")
-//    public ResponseEntity<List<Resume>> getResumes(@PathVariable("advertId") long advertId) {
-//        List<Resume> resumes = userService.getResumesByJobAdvertisement(advertId);
-//        System.out.println(resumes);
-//        return ResponseEntity.ok(resumes);
-//    }
 
     // Example method to fetch resumes by advertisement ID
     @GetMapping("/getResumes/{advertId}")
@@ -502,4 +465,61 @@ public class UserController {
     public List<Connection> getPendingFriendRequests(@PathVariable long userId) {
         return userService.getPendingFriendRequests(userId);
     }
+
+    @GetMapping("/getCommentsOfPost/{post_id}")
+    public List<CommentDTO> getCommentsOfPost(@PathVariable long post_id){
+        return userService.getCommentDTOs(post_id);
+    }
+
+
+    @GetMapping("/download/{resumeId}")
+    public ResponseEntity<Resource> downloadResume(@PathVariable long resumeId) {
+        try {
+            Resume resume = userService.findResumeById(resumeId)
+                    .orElseThrow(() -> new RuntimeException("Resume not found"));
+
+            Path filePath = Paths.get(resume.getFilepath()).normalize();
+            UrlResource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                HttpHeaders headers = new HttpHeaders();
+                //headers.setContentType(MediaType.APPLICATION_PDF); // Set Content-Type as application/pdf
+                headers.setContentDispositionFormData("attachment", resume.getFilename());
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @ResponseBody
+    @PutMapping("/setMission/{companyId}")
+    public void setMission(@PathVariable("companyId") long companyId,@RequestBody Map<String,String> requestBody){
+        String mission=requestBody.get("mission");
+        userService.setMission(mission,companyId);
+    }
+
+    @ResponseBody
+    @PutMapping("/follow/{user_id}/{companyId}")
+    public void followCompany(@PathVariable long user_id,@PathVariable long companyId){
+        userService.followCompany(user_id,companyId);
+    }
+
+    @ResponseBody
+    @PutMapping("/unfollow/{user_id}/{companyId}")
+    public void unfollowCompany(@PathVariable long user_id,@PathVariable long companyId){
+        userService.unfollowCompany(user_id,companyId);
+    }
+
+    @ResponseBody
+    @GetMapping("/isFollower/{user_id}/{companyId}")
+    public boolean isFollower(@PathVariable long user_id,@PathVariable long companyId){
+        return userService.isFollower(user_id,companyId);
+    }
+
 }

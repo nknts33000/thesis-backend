@@ -1,6 +1,7 @@
 package com.example.platform.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -42,6 +43,15 @@ public class Company {
     @JsonIgnore
     @ManyToMany(mappedBy = "adminOf")
     private Set<User> admins;
+
+    @JsonBackReference
+    @ManyToMany
+    @JoinTable(
+            name = "followings",
+            joinColumns = @JoinColumn(name = "company_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> followers;
 
     @JsonManagedReference
     @OneToMany(mappedBy="company")

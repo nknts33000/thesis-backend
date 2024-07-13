@@ -48,10 +48,10 @@ public interface UserRepo extends JpaRepository<User,Long> {
 
     void deleteByEmail(String email);
 
-    @Query("select c.user2.id from Connection c where c.user1.id = :userId")
+    @Query("select c.user2.id from Connection c where c.user1.id = :userId and c.connection_status='Friends'")
     List<Long> findFriendsIdsByInitiatorId(@Param("userId") Long userId);
 
-    @Query("select c.user1.id from Connection c where c.user2.id = :userId")
+    @Query("select c.user1.id from Connection c where c.user2.id = :userId and c.connection_status='Friends'")
     List<Long> findFriendsIdsByAcceptorId(@Param("userId") Long userId);
 
     @Query("select p from Post p where p.user.id in :friendIds")

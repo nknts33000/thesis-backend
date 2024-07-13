@@ -19,6 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -241,6 +245,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
+
     public void update_profile(ProfileDTO profileDTO) throws UserNotFoundException, CustomException {
         User user=getUserFromToken(profileDTO.getToken());
         Profile profile=profileRepo.findByUser(user).orElseThrow(() -> new CustomException("profile doesn't exist"));
@@ -293,8 +298,6 @@ public class UserService implements UserDetailsService {
 
     public Connection newFriendRequest(long initiator_id, long recipient_id) throws UserNotFoundException, CustomException {
 
-//        User user1=getUserFromToken(connectionDTO.getToken());
-//        User user2=getUser(connectionDTO.getReceipient_email());
         User user1=findUserById(initiator_id);
         User user2=findUserById(recipient_id);
         boolean connectionExists=connectionExists(user1,user2);
@@ -311,20 +314,8 @@ public class UserService implements UserDetailsService {
     }
 
     public Connection acceptFriendRequest(long initiator_id, long recipient_id) throws UserNotFoundException, CustomException {
-//        try{
-//            User user1=findUserById(initiator_id);
-//            User user2=findUserById(recipient_id);
-//            connectionRepo.acceptRequest(user1,user2);
-//            Connection c=findExistingConnection(initiator_id,recipient_id);
-//            System.out.print("conn status: "+c.getConnection_status()+"\n");
-//            return c;
-//        }
-//        catch(Exception e) {
-//            throw new CustomException("no connection");
-//        }
         try{
-            //User user1=findUserById(initiator_id);
-           // User user2=findUserById(recipient_id);
+
             Connection c=findExistingConnection(initiator_id,recipient_id);
             c.setConnection_status("Friends");
             connectionRepo.save(c);
@@ -375,9 +366,8 @@ public class UserService implements UserDetailsService {
         return post;
     }
 
-    public void addCommentToPost(String token, long post_id, String content) throws UserNotFoundException {
-        User user=getUserFromToken(token);
-        System.out.println("post id:"+post_id);
+    public void addCommentToPost(long user_id, long post_id, String content) throws UserNotFoundException {
+        User user=findUserById(user_id);
         Post post= getPostById(post_id);
         commentRepo.save(new Comment(post,user,content));
     }
@@ -385,6 +375,19 @@ public class UserService implements UserDetailsService {
     public List<Comment> getComments(long postId){
         Post post=getPostById(postId);
         return commentRepo.getCommentFromPost(post);
+    }
+
+    public List<CommentDTO> getCommentDTOs(long post_id){
+        List<Comment> comments= getComments(post_id).stream()
+                .sorted(Comparator.comparing(Comment::getComment_date).reversed())
+                .toList();
+        List<CommentDTO> commentdtos=new ArrayList<>();
+        for(Comment c:comments){
+            commentdtos.add(
+                    new CommentDTO(c.getUser(), c)
+            );
+        }
+        return commentdtos;
     }
 
     public void createCompany(String token,String mission,String name) throws UserNotFoundException {
@@ -542,6 +545,13 @@ public class UserService implements UserDetailsService {
         profileRepo.setSummary(summary,profile_id);
     }
 
+    public void setMission(String mission,long companyId){
+        Company company=findCompanyById(companyId);
+        company.setMission(mission);
+        companyRepo.save(company);
+
+    }
+
     public List<Post> postsOfCompany(long companyId){
         Company company=companyRepo.findCompanyByCompanyId(companyId);
         List<Post> posts= companyRepo.findPostsOfCompany(company);
@@ -594,47 +604,6 @@ public class UserService implements UserDetailsService {
     public Advert getAdvertByAdvertId(long advertId) {
         return advertRepo.findAdvertByAdvertId(advertId);
     }
-
-//    public Resume saveResume(MultipartFile file, Advert jobAdvertisement,User user) throws IOException {
-//        // Create directories if they don't exist
-//        Path uploadPath = Paths.get(uploadDir);
-//        if (!Files.exists(uploadPath)) {
-//            Files.createDirectories(uploadPath);
-//        }
-//
-//
-//        // Create unique filename
-//        String filename = jobAdvertisement.getAdvertId() + "_" + file.getOriginalFilename();
-//        Path filePath = uploadPath.resolve(filename);
-//        System.out.println("resume service");
-//
-//        // Save file to disk
-//        Files.copy(file.getInputStream(), filePath);
-//
-//        // Save resume metadata
-//        Resume resume = new Resume();
-//        resume.setFilename(filename);
-//        resume.setFilepath(filePath.toString());
-//        resume.setJobAdvertisement(jobAdvertisement);
-//        resume.setUser(user);
-//
-//
-//
-//
-//        // Add user to applicants
-//        jobAdvertisement.getApplicants().add(user);
-//        user.getApplications().add(jobAdvertisement);
-//        //user.getResumes().add(resume);
-//
-//
-//        // Save changes to the database
-//        advertRepo.save(jobAdvertisement); // Make sure to save the updated Advert
-//        userRepo.save(user); // Save the updated User to ensure the relationship is stored
-//
-//
-//        return resumeRepository.save(resume);
-//    }
-
 
     public Resume saveResume(MultipartFile file, Advert jobAdvertisement, User user) throws IOException {
         // Ensure the upload directory exists
@@ -722,18 +691,7 @@ public class UserService implements UserDetailsService {
         );
     }
 
-//    public List<Message> getMessagesBetweenUsers(long senderId, long receiverId) {
-//        List<Message> first_list= messageRepo.findBySenderIdAndReceiverId(senderId, receiverId); //list with the messages the sender has sent
-//        List<Message> second_list= messageRepo.findBySenderIdAndReceiverId(receiverId, senderId); //list with the messages the receiver has sent
-//
-//    }
-
     public List<Message> getMessagesBetweenUsers(long senderId, long receiverId) {
-        // Retrieve messages sent from sender to receiver
-//        List<Message> firstList = messageRepo.findBySenderIdAndReceiverId(senderId, receiverId);
-//
-//        // Retrieve messages sent from receiver to sender
-//        List<Message> secondList = messageRepo.findBySenderIdAndReceiverId(receiverId, senderId);
 
         // Combine the lists
 
@@ -751,34 +709,6 @@ public class UserService implements UserDetailsService {
         return combinedList;
     }
 
-
-//    public Map<String,List<Message>> findConvosOfUser(long user_id){
-//        User current_user=findUserById(user_id);
-//        List<User> usersOfConvos= messageRepo.findDistinctConversationUsers(current_user); // find all the users this one has had conversations with
-//        Map<String,List<Message>> convos=new HashMap<>();
-//        for (User user:usersOfConvos){
-//            List<Message> messages= getMessagesBetweenUsers(user_id,user.getId());
-//            convos.put(convertUserToJson(user),messages);
-//        }
-//        convos= convos.entrySet().stream()
-//                .sorted((entry1, entry2) -> {
-//                    // Get the last message timestamps
-//                    LocalDateTime lastTimestamp1 = entry1.getValue().get(entry1.getValue().size() - 1).getTimestamp();
-//                    LocalDateTime lastTimestamp2 = entry2.getValue().get(entry2.getValue().size() - 1).getTimestamp();
-//
-//                    // Compare them
-//                    return lastTimestamp2.compareTo(lastTimestamp1);
-//                })
-//                .collect(Collectors.toMap(
-//                        Map.Entry::getKey,
-//                        Map.Entry::getValue,
-//                        (e1, e2) -> e1,
-//                        LinkedHashMap::new // Keeps the sorted order
-//                ));
-//
-//        return convos;
-//
-//    }
 
 
     public Map<String, List<Message>> findConvosOfUser(long user_id) {
@@ -837,6 +767,54 @@ public class UserService implements UserDetailsService {
     public List<Connection> getPendingFriendRequests(long userId) {
         User user = findUserById(userId);
         return connectionRepo.getPendingRequestsOfUser2(user);
+    }
+
+    public Set<PostDTO> postsToPostDTO(List<Post> posts){
+        return posts.stream()
+                .sorted(Comparator.comparing(Post::getPost_date).reversed())
+                .map(post -> {
+                    User user = getUserByPost(post);
+                    List<Comment> comments= getComments(post.getPostId()).stream()
+                            .sorted(Comparator.comparing(Comment::getComment_date).reversed())
+                            .toList();
+                    List<CommentDTO> commentdtos=new ArrayList<>();
+                    for(Comment c:comments){
+                        commentdtos.add(
+                                new CommentDTO(c.getUser(), c)
+                        );
+                    }
+
+                    return new PostDTO(post, user, commentdtos);
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Optional<Resume> findResumeById(long id){
+        return resumeRepository.findById(id);
+    }
+
+    public void followCompany(long user_id,long companyId){
+        User user=findUserById(user_id);
+        Company company=findCompanyById(companyId);
+        user.getFollowing().add(company);
+        company.getFollowers().add(user);
+        userRepo.save(user);
+        companyRepo.save(company);
+    }
+
+    public void unfollowCompany(long user_id,long companyId){
+        User user=findUserById(user_id);
+        Company company=findCompanyById(companyId);
+        user.getFollowing().remove(company);
+        company.getFollowers().remove(user);
+        userRepo.save(user);
+        companyRepo.save(company);
+    }
+
+    public boolean isFollower(long user_id,long companyId){
+        User user=findUserById(user_id);
+        Company company=findCompanyById(companyId);
+        return company.getFollowers().contains(user);
     }
 
 }

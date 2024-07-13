@@ -15,12 +15,12 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long comment_id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name = "postId",referencedColumnName = "postId")
     @JsonBackReference
     private Post post;// (foreign key referencing Posts)
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     @JsonBackReference
     private User user;// (foreign key referencing Users)

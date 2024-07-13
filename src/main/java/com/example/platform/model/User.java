@@ -73,6 +73,7 @@ public class User implements Serializable, UserDetails {
     @OneToOne(mappedBy = "user")
     private Profile profile;
 
+
     @JsonIgnore
     @OneToMany(mappedBy = "creator")
     private List<Company> companies;
@@ -88,6 +89,10 @@ public class User implements Serializable, UserDetails {
     @JsonIgnore
     @ManyToMany(mappedBy = "applicants")
     private List<Advert> applications;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "followers")
+    private List<Company> following;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
