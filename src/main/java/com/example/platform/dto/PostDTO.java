@@ -1,5 +1,6 @@
 package com.example.platform.dto;
 
+import com.example.platform.model.Company;
 import com.example.platform.model.Post;
 import com.example.platform.model.Profile;
 import com.example.platform.model.User;
@@ -22,6 +23,8 @@ public class PostDTO {
     //
 
     private User user;
+
+    private Company company;
 
     private List<CommentDTO> comments;//to be replaced by comment
 }

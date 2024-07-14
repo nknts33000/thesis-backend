@@ -120,7 +120,10 @@ public class UserController {
         String token = requestBody.get("token");
         System.out.println(token);
         List<Post> friendsPosts = userService.getPostsOfFriends(token);
-
+        List<Post> followingCompPosts=userService.getPostsOfFollowingCompanies(token);
+        for(Post p:followingCompPosts){
+            friendsPosts.add(p);
+        }
         // Create PostDTO objects with corresponding profiles
         Set<PostDTO> sortedPostsWithUsers = userService.postsToPostDTO(friendsPosts);
 
@@ -348,11 +351,12 @@ public class UserController {
 
     @ResponseBody
     @GetMapping("/getPostsOfCompany/{companyId}")
-    public List<Post> postsOfCompany(@PathVariable("companyId") long companyId){
-        List<Post> posts=userService.postsOfCompany(companyId);
-        return posts.stream()
-                .sorted(Comparator.comparing(Post::getPost_date).reversed())
-                .collect(Collectors.toList());
+    public Set<PostDTO> postsOfCompany(@PathVariable("companyId") long companyId){
+        Set<PostDTO> posts=userService.postsOfCompany(companyId);
+        return posts;
+//                .stream()
+//                .sorted(Comparator.comparing(Post::getPost_date).reversed())
+//                .collect(Collectors.toList());
     }
 
     @ResponseBody

@@ -219,6 +219,17 @@ public class UserService implements UserDetailsService {
         return userRepo.findPostsOfFriends(friendIds);
     }
 
+    public List<Post> getPostsOfFollowingCompanies(String token) throws UserNotFoundException {
+        User user= getUserFromToken(token);
+        List<Post> postsOfFollowingCompanies = new ArrayList<>();
+        List<Company> followingCompanies=user.getFollowing();
+        for (Company c:followingCompanies){
+            for(Post p:c.getPosts()){
+                postsOfFollowingCompanies.add(p);
+            }
+        }
+        return postsOfFollowingCompanies;
+    }
 
     public User getUserFromToken(String token) throws UserNotFoundException {
         String secondKey=secretKeyConfig.SecretValue();
@@ -552,10 +563,10 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public List<Post> postsOfCompany(long companyId){
+    public Set<PostDTO> postsOfCompany(long companyId){
         Company company=companyRepo.findCompanyByCompanyId(companyId);
         List<Post> posts= companyRepo.findPostsOfCompany(company);
-        return posts;
+        return postsToPostDTO(posts);
     }
 
     public void updateComLogo(byte[] fileBytes, long companyId){
@@ -572,7 +583,7 @@ public class UserService implements UserDetailsService {
 
         if(company.getAdmins().contains(user) || company.getCreator().equals(user)){
             postRepo.save(new Post(
-                    content,user,company
+                    content,company
             ));
         }
         else{
@@ -773,7 +784,7 @@ public class UserService implements UserDetailsService {
         return posts.stream()
                 .sorted(Comparator.comparing(Post::getPost_date).reversed())
                 .map(post -> {
-                    User user = getUserByPost(post);
+//                    User user = getUserByPost(post);
                     List<Comment> comments= getComments(post.getPostId()).stream()
                             .sorted(Comparator.comparing(Comment::getComment_date).reversed())
                             .toList();
@@ -784,7 +795,7 @@ public class UserService implements UserDetailsService {
                         );
                     }
 
-                    return new PostDTO(post, user, commentdtos);
+                    return new PostDTO(post, post.getUser(), post.getCompany(), commentdtos);
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }

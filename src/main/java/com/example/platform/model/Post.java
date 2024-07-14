@@ -54,7 +54,7 @@ public class Post implements Serializable {
         this.user=user;
     }
 
-    public Post(String content, User user,Company company){
+    public Post(String content,Company company){
         this.content=content;
         this.user=user;
         this.company=company;

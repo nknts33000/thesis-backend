@@ -119,7 +119,7 @@ public class DataLoader implements CommandLineRunner {
 //                    int numOfCompanyPosts = faker.number().numberBetween(1, 3);
 //                    for (int p = 0; p < numOfCompanyPosts; p++) {
 //                        String content = faker.lorem().paragraph();
-//                        Post post = new Post(content, user, company);
+//                        Post post = new Post(content, company);
 //                        postRepo.save(post);
 //                    }
 //                }
