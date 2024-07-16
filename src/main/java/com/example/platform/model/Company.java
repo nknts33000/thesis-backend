@@ -36,9 +36,15 @@ public class Company {
     private List<Post> posts;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "company")
+    private List<Share> shares;
+
+    @JsonIgnore
     @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",referencedColumnName = "id")
     private User creator;
+
+
 
     @JsonIgnore
     @ManyToMany(mappedBy = "adminOf")

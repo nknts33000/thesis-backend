@@ -1,9 +1,6 @@
 package com.example.platform.dto;
 
-import com.example.platform.model.Company;
-import com.example.platform.model.Post;
-import com.example.platform.model.Profile;
-import com.example.platform.model.User;
+import com.example.platform.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 
-@AllArgsConstructor
+
 @Getter
 @Setter
 public class PostDTO {
@@ -24,8 +21,14 @@ public class PostDTO {
 
     private List<CommentDTO> comments;//to be replaced by comment
 
-    private ShareEntity shareEntity;
+    //private ShareEntity shareEntity;
+
+    private Share share;
 
     private LocalDateTime timestamp;
+
+    public PostDTO(Post post,User user,Company company,List<CommentDTO> comments,Share share,LocalDateTime timestamp){
+
+    }
 
 }

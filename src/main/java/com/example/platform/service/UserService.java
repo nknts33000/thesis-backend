@@ -223,6 +223,15 @@ public class UserService implements UserDetailsService {
         return userRepo.findPostsOfFriends(friendIds);
     }
 
+    public List<Share> getShareOfFriends(String token) throws UserNotFoundException {
+        User user= getUserFromToken(token);
+        List<Long> friendIds = new ArrayList<>();
+        friendIds.addAll(userRepo.findFriendsIdsByInitiatorId(user.getId()));
+        friendIds.addAll(userRepo.findFriendsIdsByAcceptorId(user.getId()));
+
+        return userRepo.findSharesOfFriends(friendIds);
+    }
+
     public List<Post> getPostsOfFollowingCompanies(String token) throws UserNotFoundException {
         User user= getUserFromToken(token);
         List<Post> postsOfFollowingCompanies = new ArrayList<>();
@@ -234,6 +243,19 @@ public class UserService implements UserDetailsService {
         }
         return postsOfFollowingCompanies;
     }
+
+    public List<Share> getSharesOfFollowingCompanies(String token) throws UserNotFoundException {
+        User user= getUserFromToken(token);
+        List<Share> sharesOfFollowingCompanies = new ArrayList<>();
+        List<Company> followingCompanies=user.getFollowing();
+        for (Company c:followingCompanies){
+            for(Share s:c.getShares()){
+                sharesOfFollowingCompanies.add(s);
+            }
+        }
+        return sharesOfFollowingCompanies;
+    }
+
 
     public User getUserFromToken(String token) throws UserNotFoundException {
         String secondKey=secretKeyConfig.SecretValue();
@@ -786,7 +808,7 @@ public class UserService implements UserDetailsService {
 
     public Set<PostDTO> postsToPostDTO(List<Post> posts){
         return posts.stream()
-                .sorted(Comparator.comparing(Post::getPost_date).reversed())
+                //.sorted(Comparator.comparing(Post::getPost_date).reversed())
                 .map(post -> {
 //                    User user = getUserByPost(post);
                     List<Comment> comments= getComments(post.getPostId()).stream()
@@ -799,9 +821,31 @@ public class UserService implements UserDetailsService {
                         );
                     }
 
-                    return new PostDTO(post, post.getUser(), post.getCompany(), commentdtos);
+                    return new PostDTO(post, post.getUser(), post.getCompany(), commentdtos,null,post.getPost_date());
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<PostDTO> sharesToPostDTO(List<Share> shares){
+
+        return shares.stream()
+                //.sorted(Comparator.comparing(Post::getPost_date).reversed())
+                .map(share -> {
+//                    User user = getUserByPost(post);
+                    List<Comment> comments= getComments(share.getPost().getPostId()).stream()
+                            .sorted(Comparator.comparing(Comment::getComment_date).reversed())
+                            .toList();
+                    List<CommentDTO> commentdtos=new ArrayList<>();
+                    for(Comment c:comments){
+                        commentdtos.add(
+                                new CommentDTO(c.getUser(), c)
+                        );
+                    }
+
+                    return new PostDTO(share.getPost(), share.getPost().getUser(), share.getPost().getCompany(), commentdtos,share, share.getShare_date());
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
     }
 
     public Optional<Resume> findResumeById(long id){

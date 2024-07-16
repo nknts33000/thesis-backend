@@ -121,13 +121,26 @@ public class UserController {
         System.out.println(token);
         List<Post> friendsPosts = userService.getPostsOfFriends(token);
         List<Post> followingCompPosts=userService.getPostsOfFollowingCompanies(token);
+
+        List<Share> friendsShares=userService.getShareOfFriends(token);
+        List<Share> sharesOfCompanies=userService.getSharesOfFollowingCompanies(token);
+
+
         for(Post p:followingCompPosts){
             friendsPosts.add(p);
         }
-        // Create PostDTO objects with corresponding profiles
-        Set<PostDTO> sortedPostsWithUsers = userService.postsToPostDTO(friendsPosts);
 
-        return sortedPostsWithUsers;
+        for(Share s:sharesOfCompanies){
+            friendsShares.add(s);
+        }
+        // Create PostDTO objects with corresponding profiles
+        Set<PostDTO> PostsWithUsersAndCompanies = userService.postsToPostDTO(friendsPosts);
+
+        Set<PostDTO> SharesWithUsersAndCompanies = userService.sharesToPostDTO(friendsShares);
+
+        PostsWithUsersAndCompanies.addAll(SharesWithUsersAndCompanies);
+
+        return PostsWithUsersAndCompanies.stream().sorted(Comparator.comparing(PostDTO::getTimestamp).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @ResponseBody

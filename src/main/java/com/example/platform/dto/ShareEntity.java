@@ -10,4 +10,15 @@ import lombok.Setter;
 public class ShareEntity {
     private User user;
     private Company company;
+
+    public ShareEntity(){}
+
+    public ShareEntity(User user){
+        this.user=user;
+    }
+
+    public ShareEntity(Company company){
+        this.company=company;
+    }
+
 }
