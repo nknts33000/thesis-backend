@@ -26,7 +26,7 @@ public class Post implements Serializable {
     @JsonBackReference
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="companyId",referencedColumnName = "companyId")
     @JsonBackReference
     private Company company;
@@ -37,11 +37,11 @@ public class Post implements Serializable {
     @Column(nullable = false)
     private LocalDateTime post_date= LocalDateTime.now();
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "post")
     private List<Like> likes;
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "post")
     private List<Share> shares;
 

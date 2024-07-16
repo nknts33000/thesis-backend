@@ -67,6 +67,8 @@ public class UserService implements UserDetailsService {
 
     private final MessageRepo messageRepo;
 
+    private final LikeRepo likeRepo;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -74,7 +76,8 @@ public class UserService implements UserDetailsService {
     public UserService(UserRepo userRepo, PostRepo postRepo, SecretKeyConfig secretKeyConfig,
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
-                       EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository,MessageRepo messageRepo){
+                       EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository,MessageRepo messageRepo,
+                       LikeRepo likeRepo){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -89,6 +92,7 @@ public class UserService implements UserDetailsService {
         this.companyRepository=companyRepository;
         this.resumeRepository=resumeRepository;
         this.messageRepo=messageRepo;
+        this.likeRepo=likeRepo;
     }
 
 
@@ -828,4 +832,42 @@ public class UserService implements UserDetailsService {
         return company.getFollowers().contains(user);
     }
 
+    public void likeAPost(long userId, long postId) {
+        User user=findUserById(userId);
+        Post post=getPostById(postId);
+        likeRepo.save(
+                new Like(user,post)
+        );
+    }
+
+    public void unlikeAPost(long userId, long postId) {
+        User user=findUserById(userId);
+        Post post=getPostById(postId);
+//        Like like=new Like();
+        Optional<Like> like=likeRepo.findLike(user,post);
+        if (like.isPresent()) likeRepo.delete(like.get());
+    }
+
+//    public Set<PostDTO> getLikedPosts(long user_id,List<Long> postIds){
+//        User user=findUserById(user_id);
+//        List<Post> posts=new ArrayList<>();
+//        for (long postId:postIds){
+//            Post p= getPostById(postId);
+//            Optional<Like> current_like=likeRepo.fetchLikes(user,p);
+//            if(current_like.isPresent()) posts.add(p);
+//        }
+//
+//        return postsToPostDTO(posts);
+//    }
+
+    public Map<Long, Boolean> getLikedPosts(long user_id, List<Long> postIds) {
+        User user = findUserById(user_id);
+        Map<Long, Boolean> likedStatus = new HashMap<>();
+        for (Long postId : postIds) {
+            Post p = getPostById(postId);
+            Optional<Like> current_like = likeRepo.findLike(user, p);
+            likedStatus.put(postId, current_like.isPresent());
+        }
+        return likedStatus;
+    }
 }

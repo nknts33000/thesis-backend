@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @AllArgsConstructor
 @Getter
@@ -16,15 +18,14 @@ import java.util.List;
 public class PostDTO {
     private Post post;
 
-    //to be replaced by user after the Post component is made in the front end.
-//    private String firstname;
-//    private String lastname;
-//    private String picture_url;
-    //
-
     private User user;
 
     private Company company;
 
     private List<CommentDTO> comments;//to be replaced by comment
+
+    private ShareEntity shareEntity;
+
+    private LocalDateTime timestamp;
+
 }

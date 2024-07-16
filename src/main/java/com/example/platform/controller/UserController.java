@@ -526,4 +526,32 @@ public class UserController {
         return userService.isFollower(user_id,companyId);
     }
 
+    @ResponseBody
+    @PostMapping("/like/{user_id}/{post_id}")
+    public void like(@PathVariable long user_id,@PathVariable long post_id){
+        userService.likeAPost(user_id,post_id);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/unlike/{user_id}/{post_id}")
+    public void unlike(@PathVariable long user_id,@PathVariable long post_id){
+        userService.unlikeAPost(user_id,post_id);
+    }
+
+//    @ResponseBody
+//    @PostMapping("/checkLikes/{user_id}")
+//    public Set<PostDTO> checkLikes(@PathVariable long user_id,@RequestBody CheckLikesRequest checkLikesRequest){
+//        List<Long> postIds=checkLikesRequest.getPostIds();
+//        return userService.getLikedPosts(user_id,postIds);
+//    }
+
+    @ResponseBody
+    @PostMapping("/checkLikes/{user_id}")
+    public Map<Long, Boolean> checkLikes(@PathVariable long user_id, @RequestBody CheckLikesRequest checkLikesRequest) {
+        List<Long> postIds = checkLikesRequest.getPostIds();
+        System.out.println("longs"+postIds);
+        return userService.getLikedPosts(user_id, postIds);
+    }
+
+
 }
