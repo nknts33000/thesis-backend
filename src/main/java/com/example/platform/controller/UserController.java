@@ -289,7 +289,12 @@ public class UserController {
     @GetMapping("/getPosts/{id}")
     public Set<PostDTO> getPostsOfUser(@PathVariable("id") long id){
         List<Post> profile_posts= userService.getPostsOfUser(id);
-        return userService.postsToPostDTO(profile_posts);
+        List<Share> profile_shares=userService.getSharesOfUser(id);
+        Set<PostDTO> userPosts= userService.postsToPostDTO(profile_posts);
+        Set<PostDTO> userShares=userService.sharesToPostDTO(profile_shares);
+        userPosts.addAll(userShares);
+
+        return userPosts.stream().sorted(Comparator.comparing(PostDTO::getTimestamp).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @ResponseBody
@@ -366,10 +371,12 @@ public class UserController {
     @GetMapping("/getPostsOfCompany/{companyId}")
     public Set<PostDTO> postsOfCompany(@PathVariable("companyId") long companyId){
         Set<PostDTO> posts=userService.postsOfCompany(companyId);
-        return posts;
-//                .stream()
-//                .sorted(Comparator.comparing(Post::getPost_date).reversed())
-//                .collect(Collectors.toList());
+        Set<PostDTO> shares=userService.sharesOfCompany(companyId);
+        posts.addAll(shares);
+        return posts
+                .stream()
+                .sorted(Comparator.comparing(PostDTO::getTimestamp).reversed())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @ResponseBody
@@ -551,12 +558,6 @@ public class UserController {
         userService.unlikeAPost(user_id,post_id);
     }
 
-//    @ResponseBody
-//    @PostMapping("/checkLikes/{user_id}")
-//    public Set<PostDTO> checkLikes(@PathVariable long user_id,@RequestBody CheckLikesRequest checkLikesRequest){
-//        List<Long> postIds=checkLikesRequest.getPostIds();
-//        return userService.getLikedPosts(user_id,postIds);
-//    }
 
     @ResponseBody
     @PostMapping("/checkLikes/{user_id}")
@@ -564,6 +565,20 @@ public class UserController {
         List<Long> postIds = checkLikesRequest.getPostIds();
         System.out.println("longs"+postIds);
         return userService.getLikedPosts(user_id, postIds);
+    }
+
+    @ResponseBody
+    @PostMapping("/share/{user_id}/{post_id}")
+    public void sharePost(@PathVariable long user_id,@PathVariable long post_id,@RequestBody Map<String,String> reqBody){
+        String description=reqBody.get("description");
+        userService.sharePost(user_id,post_id,description);
+    }
+
+    @ResponseBody
+    @PostMapping("/shareForCompany/{company_id}/{post_id}")
+    public void shareCompany(@PathVariable long company_id,@PathVariable long post_id,@RequestBody Map<String,String> reqBody){
+        String description=reqBody.get("description");
+        userService.sharePostForCompany(company_id,post_id,description);
     }
 
 

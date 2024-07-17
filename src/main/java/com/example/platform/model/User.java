@@ -122,7 +122,7 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Like> likes;
 
-    @JsonIgnore
+    @JsonBackReference
     @OneToMany(mappedBy = "user")
     private List<Share> shares;
 

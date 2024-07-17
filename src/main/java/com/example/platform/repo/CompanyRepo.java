@@ -2,6 +2,7 @@ package com.example.platform.repo;
 
 import com.example.platform.model.Company;
 import com.example.platform.model.Post;
+import com.example.platform.model.Share;
 import com.example.platform.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,9 @@ public interface CompanyRepo extends JpaRepository<Company, Long> {
 
     @Query("select p from Post p where p.company=?1")
     List<Post> findPostsOfCompany(Company company);
+
+    @Query("select s from Share s where s.company=?1")
+    List<Share> findSharesOfCompany(Company company);
 
     @Query("select c.companyLogo from Company c where c.companyId = ?1")
     Optional<byte[]> findLogoById(long companyId);

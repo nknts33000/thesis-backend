@@ -29,6 +29,12 @@ public class PostDTO {
 
     public PostDTO(Post post,User user,Company company,List<CommentDTO> comments,Share share,LocalDateTime timestamp){
 
+        this.post=post;
+        this.user=user;
+        this.company=company;
+        this.comments=comments;
+        this.share=share;
+        this.timestamp=timestamp;
     }
 
 }

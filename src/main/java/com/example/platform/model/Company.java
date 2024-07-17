@@ -35,7 +35,7 @@ public class Company {
     @OneToMany(mappedBy = "company")
     private List<Post> posts;
 
-    @JsonIgnore
+    @JsonBackReference
     @OneToMany(mappedBy = "company")
     private List<Share> shares;
 

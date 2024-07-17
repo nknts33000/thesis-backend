@@ -68,6 +68,7 @@ public class UserService implements UserDetailsService {
     private final MessageRepo messageRepo;
 
     private final LikeRepo likeRepo;
+    private final ShareRepo shareRepo;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -77,7 +78,7 @@ public class UserService implements UserDetailsService {
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
                        EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository,MessageRepo messageRepo,
-                       LikeRepo likeRepo){
+                       LikeRepo likeRepo,ShareRepo shareRepo){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -93,6 +94,7 @@ public class UserService implements UserDetailsService {
         this.resumeRepository=resumeRepository;
         this.messageRepo=messageRepo;
         this.likeRepo=likeRepo;
+        this.shareRepo=shareRepo;
     }
 
 
@@ -569,6 +571,11 @@ public class UserService implements UserDetailsService {
         return user.getPosts();
     }
 
+    public List<Share> getSharesOfUser(long id){
+        User user=findUserById(id);
+        return user.getShares();
+    }
+
     public void uploadProfPic(byte[] profilePicture,long profile_id){
         profileRepo.updateProfPic(profilePicture,profile_id);
     }
@@ -593,6 +600,12 @@ public class UserService implements UserDetailsService {
         Company company=companyRepo.findCompanyByCompanyId(companyId);
         List<Post> posts= companyRepo.findPostsOfCompany(company);
         return postsToPostDTO(posts);
+    }
+
+    public Set<PostDTO> sharesOfCompany(long companyId){
+        Company company=companyRepo.findCompanyByCompanyId(companyId);
+        List<Share> shares= companyRepo.findSharesOfCompany(company);
+        return sharesToPostDTO(shares);
     }
 
     public void updateComLogo(byte[] fileBytes, long companyId){
@@ -914,4 +927,22 @@ public class UserService implements UserDetailsService {
         }
         return likedStatus;
     }
+
+    public void sharePost(long id,long post_id,String description){
+        User user=findUserById(id);
+        Post post=getPostById(post_id);
+        shareRepo.save(
+                new Share(user,post,description)
+        );
+    }
+
+    public void sharePostForCompany(long companyId, long postId, String description) {
+        Company company=findCompanyById(companyId);
+        Post post=getPostById(postId);
+        shareRepo.save(
+                new Share(company,post,description)
+        );
+
+    }
+
 }
