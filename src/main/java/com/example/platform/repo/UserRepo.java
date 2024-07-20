@@ -1,9 +1,6 @@
 package com.example.platform.repo;
 
-import com.example.platform.model.Post;
-import com.example.platform.model.Profile;
-import com.example.platform.model.Share;
-import com.example.platform.model.User;
+import com.example.platform.model.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 

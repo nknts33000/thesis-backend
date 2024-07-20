@@ -20,11 +20,6 @@ public class Group {
     private User owner;
 
     @ManyToMany(mappedBy = "groups")
-//    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name = "GROUP_MEMBERS",
-//            joinColumns = @JoinColumn(name = "group_id"),
-//            inverseJoinColumns = @JoinColumn(name = "id"))
     private Set<User> users;
     @Column(nullable = false)
     private String group_name;

@@ -4,8 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.platform.ElasticSearch.CompanyES;
-import com.example.platform.ElasticSearch.CompanyRepository;
+import com.example.platform.ElasticSearch.*;
 import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.InvalidCredentialsException;
@@ -61,6 +60,8 @@ public class UserService implements UserDetailsService {
 
     private final EducationRepo educationRepo;
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
+
     private PasswordEncoder passwordEncoder;
 
     private final ResumeRepo resumeRepository;
@@ -78,7 +79,7 @@ public class UserService implements UserDetailsService {
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
                        EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository,MessageRepo messageRepo,
-                       LikeRepo likeRepo,ShareRepo shareRepo){
+                       LikeRepo likeRepo,ShareRepo shareRepo,UserRepository userRepository){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -95,6 +96,7 @@ public class UserService implements UserDetailsService {
         this.messageRepo=messageRepo;
         this.likeRepo=likeRepo;
         this.shareRepo=shareRepo;
+        this.userRepository=userRepository;
     }
 
 
@@ -223,6 +225,21 @@ public class UserService implements UserDetailsService {
         friendIds.addAll(userRepo.findFriendsIdsByAcceptorId(user.getId()));
 
         return userRepo.findPostsOfFriends(friendIds);
+    }
+
+
+    public Set<User> getAllFriends(long id){
+        List<Long> friendIds = new ArrayList<>();
+        friendIds.addAll(userRepo.findFriendsIdsByInitiatorId(id));
+        friendIds.addAll(userRepo.findFriendsIdsByAcceptorId(id));
+
+        List<User> friends= new ArrayList<>();
+
+        for (Long friend_id:friendIds){
+            friends.add(findUserById(friend_id));
+        }
+
+        return friends.stream().sorted(Comparator.comparing(User::getFirstname)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public List<Share> getShareOfFriends(String token) throws UserNotFoundException {
@@ -883,6 +900,11 @@ public class UserService implements UserDetailsService {
         companyRepo.save(company);
     }
 
+    public Set<Company> getFollowings(long user_id){
+        User user=findUserById(user_id);
+        return user.getFollowing().stream().sorted(Comparator.comparing(Company::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     public boolean isFollower(long user_id,long companyId){
         User user=findUserById(user_id);
         Company company=findCompanyById(companyId);
@@ -943,6 +965,47 @@ public class UserService implements UserDetailsService {
                 new Share(company,post,description)
         );
 
+    }
+
+    public void updateUserEmail(long id, String email){
+        User user=findUserById(id);
+        if (!user.getEmail().equals(email)){
+            Optional<User> checkForExistence=userRepo.findByEmail(email);
+            if(checkForExistence.isEmpty()){
+                user.setEmail(email);
+                userRepo.save(user);
+            }
+        }
+    }
+
+    public void updatePassword(long id,String password){
+        User user=findUserById(id);
+        user.setPassword(passwordEncoder.encode(CharBuffer.wrap(password)));
+        userRepo.save(user);
+    }
+
+    public void updateFirstName(long id,String first_name){
+        User user=findUserById(id);
+        UserES userES=userRepository.findById(Long.toString(id)).get();
+        user.setFirstname(first_name);
+        userES.setFirstname(first_name);
+        userRepo.save(user);
+        userRepository.save(userES);
+    }
+
+    public void updateLastName(long id,String last_name){
+        User user=findUserById(id);
+        UserES userES=userRepository.findById(Long.toString(id)).get();
+        user.setLastname(last_name);
+        userES.setLastname(last_name);
+        userRepo.save(user);
+        userRepository.save(userES);
+    }
+
+    public void updateLocation(long id,String location){
+        User user=findUserById(id);
+        user.setLocation(location);
+        userRepo.save(user);
     }
 
 }

@@ -581,5 +581,19 @@ public class UserController {
         userService.sharePostForCompany(company_id,post_id,description);
     }
 
+    @ResponseBody
+    @GetMapping("/getAllFriends/{id}")
+    public Set<User> getAllFriends(@PathVariable long id){
+        return userService.getAllFriends(id);
+    }
+
+    @ResponseBody
+    @GetMapping("/getAllFollowings/{id}")
+    public Set<Company> getAllFollowings(@PathVariable long id){
+        Set<Company> companies=userService.getFollowings(id);
+        System.out.println("followings"+companies);
+        return companies;
+    }
+
 
 }
