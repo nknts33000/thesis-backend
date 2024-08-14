@@ -5,15 +5,14 @@ import com.example.platform.dto.*;
 import com.example.platform.exceptions.CustomException;
 import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
+import com.example.platform.security.config.UserAuthenticationProvider;
 import com.example.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +39,9 @@ public class UserController {
     private CompanyService companyService;
 
     @Autowired
+    private UserAuthenticationProvider userAuthenticationProvider;
+
+    @Autowired
     UserController(UserService userService){
        this.userService=userService;
     }
@@ -51,17 +53,12 @@ public class UserController {
         userService.update(registrationDTO.getEmail(),registrationDTO);
     }
 
-    @ResponseBody
-    @PutMapping("/update/password")
-    public void UpdatePassword(@RequestBody User user) throws UserNotFoundException {
-        userService.updateUserPassword(user.getEmail(),user);
-    }
+//    @ResponseBody
+//    @PutMapping("/update/password")
+//    public void UpdatePassword(@RequestBody User user) throws UserNotFoundException {
+//        userService.updateUserPassword(user.getEmail(),user);
+//    }
 
-    @ResponseBody
-    @PutMapping("/update/email")
-    public void UpdateEmail(@RequestBody User user) throws UserNotFoundException {
-        userService.updateUserEmail(user.getId(),user);
-    }
 
     @ResponseBody
     @PostMapping("/post")
@@ -595,5 +592,47 @@ public class UserController {
         return companies;
     }
 
+    @ResponseBody
+    @PutMapping("/changeEmail/{id}")
+    public String changeEmail(@PathVariable long id, @RequestBody Map<String,String> reqBody){
+        String email=reqBody.get("email");
+        System.out.println("new email:"+email);
+        User user=userService.updateUserEmail(id,email);
+        String token= userAuthenticationProvider.createToken(user.getEmail());
+        System.out.println("new token:"+token);
+        return token;
+    }
+
+    @ResponseBody
+    @PutMapping("/changePassword/{id}")
+    public void changePassword(@PathVariable long id,@RequestBody Map<String,String> reqBody){
+        String password=reqBody.get("password");
+        System.out.println("new password:"+password);
+        userService.updatePassword(id,password);
+    }
+
+    @ResponseBody
+    @PutMapping("/changeFirstname/{id}")
+    public void changeFirstname(@PathVariable long id,@RequestBody Map<String,String> reqBody){
+        String firstname=reqBody.get("firstName");
+        System.out.println("new firstName:"+firstname);
+        userService.updateFirstName(id,firstname);
+    }
+
+    @ResponseBody
+    @PutMapping("/changeLastname/{id}")
+    public void changeLastname(@PathVariable long id,@RequestBody Map<String,String> reqBody){
+        String lastname=reqBody.get("lastName");
+        System.out.println("new lastName:"+lastname);
+        userService.updateLastName(id,lastname);
+    }
+
+    @ResponseBody
+    @PutMapping("/changeLocation/{id}")
+    public void changeLocation(@PathVariable long id,@RequestBody Map<String,String> reqBody){
+        String location=reqBody.get("location");
+        System.out.println("new location:"+location);
+        userService.updateLocation(id,location);
+    }
 
 }

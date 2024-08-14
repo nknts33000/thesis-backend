@@ -15,13 +15,8 @@ import com.example.platform.repo.*;
 import com.example.platform.security.config.SecretKeyConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -166,29 +161,14 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void updateUserPassword(String email,User user) throws UserNotFoundException {
-        if(userRepo.findByEmail(email).isPresent()){
-            userRepo.updatePassword(user.getPassword(),user.getEmail());
-        }
-        else{
-            throw new UserNotFoundException();
-        }
-    }
-
-    /*
-    * gets the entity from the front end with its id and new email inside.
-    * runs an update query based on the id and
-    * */
-
-    public void updateUserEmail(Long id,User user) throws UserNotFoundException {
-        Optional<User> updated_user =userRepo.findById(id);
-        if(updated_user.isPresent()){
-            userRepo.updateEmail(user.getEmail(),id);
-        }
-        else{
-            throw new UserNotFoundException();
-        }
-    }
+//    public void updateUserPassword(String email,User user) throws UserNotFoundException {
+//        if(userRepo.findByEmail(email).isPresent()){
+//            userRepo.updatePassword(user.getPassword(),user.getEmail());
+//        }
+//        else{
+//            throw new UserNotFoundException();
+//        }
+//    }
 
     public void deleteUserByEmail(UserDTO userdto) throws UserNotFoundException {
 
@@ -922,22 +902,10 @@ public class UserService implements UserDetailsService {
     public void unlikeAPost(long userId, long postId) {
         User user=findUserById(userId);
         Post post=getPostById(postId);
-//        Like like=new Like();
         Optional<Like> like=likeRepo.findLike(user,post);
         if (like.isPresent()) likeRepo.delete(like.get());
     }
 
-//    public Set<PostDTO> getLikedPosts(long user_id,List<Long> postIds){
-//        User user=findUserById(user_id);
-//        List<Post> posts=new ArrayList<>();
-//        for (long postId:postIds){
-//            Post p= getPostById(postId);
-//            Optional<Like> current_like=likeRepo.fetchLikes(user,p);
-//            if(current_like.isPresent()) posts.add(p);
-//        }
-//
-//        return postsToPostDTO(posts);
-//    }
 
     public Map<Long, Boolean> getLikedPosts(long user_id, List<Long> postIds) {
         User user = findUserById(user_id);
@@ -967,7 +935,7 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public void updateUserEmail(long id, String email){
+    public User updateUserEmail(long id, String email){
         User user=findUserById(id);
         if (!user.getEmail().equals(email)){
             Optional<User> checkForExistence=userRepo.findByEmail(email);
@@ -976,6 +944,7 @@ public class UserService implements UserDetailsService {
                 userRepo.save(user);
             }
         }
+        return user;
     }
 
     public void updatePassword(long id,String password){

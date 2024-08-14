@@ -32,8 +32,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if(header !=null){
             String[] elements =header.split(" ");
-//            System.out.println(elements[0]);
-//            System.out.println(elements[1]);
             if(elements.length==2 && "Bearer".equals(elements[0])){
                 try{
                     SecurityContextHolder.getContext().setAuthentication(
@@ -45,9 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 } catch (UserNotFoundException e) {
                     throw new RuntimeException(e);
                 }
-//                catch (TokenExpiredException e){
-//                    throw new TokenExpiredException("Token is expired",);
-//                }
+
             }
         }
 
