@@ -44,12 +44,30 @@ public class Education {
         this.user=user;
     }
 
+    public Education(long education_id,String school_name,String degree, String field_of_study,Date start_date,User user){
+        this.education_id=education_id;
+        this.school_name=school_name;
+        this.degree=degree;
+        this.field_of_study=field_of_study;
+        this.start_date=start_date;
+
+        this.user=user;
+    }
+
     public Education(String school_name,String degree, String field_of_study,Date start_date,Date end_date,User user){
         this.school_name=school_name;
         this.degree=degree;
         this.field_of_study=field_of_study;
         this.start_date=start_date;
         this.end_date=end_date;
+        this.user=user;
+    }
+
+    public Education(String school_name,String degree, String field_of_study,Date start_date,User user){
+        this.school_name=school_name;
+        this.degree=degree;
+        this.field_of_study=field_of_study;
+        this.start_date=start_date;
         this.user=user;
     }
 

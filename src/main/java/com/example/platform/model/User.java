@@ -79,7 +79,7 @@ public class User implements Serializable, UserDetails {
     private List<Company> companies;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToMany//(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinTable(
             name = "ADMINS_OF_COMPANY_PAGES",
             joinColumns = @JoinColumn(name = "id"),
@@ -135,7 +135,7 @@ public class User implements Serializable, UserDetails {
     private Set<Comment> comments;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToMany//(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinTable(
             name = "GROUP_MEMBERS",
             joinColumns = @JoinColumn(name = "id"),

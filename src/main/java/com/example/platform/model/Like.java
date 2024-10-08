@@ -19,12 +19,12 @@ public class Like {
     private long like_id;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="postId",referencedColumnName = "postId")
     private Post post;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",referencedColumnName = "id")
     private User user;
 

@@ -291,6 +291,8 @@ public class UserController {
         Set<PostDTO> userShares=userService.sharesToPostDTO(profile_shares);
         userPosts.addAll(userShares);
 
+        System.out.println("posts:");
+        System.out.println(userPosts);
         return userPosts.stream().sorted(Comparator.comparing(PostDTO::getTimestamp).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

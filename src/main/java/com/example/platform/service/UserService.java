@@ -494,21 +494,37 @@ public class UserService implements UserDetailsService {
         // Create a SimpleDateFormat object with the desired format
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+        System.out.println("start_date: "+requestBody.get("start_date"));
         // Parse the start date and end date strings into Date objects
         Date startDate = dateFormat.parse(requestBody.get("start_date"));
-        Date endDate = dateFormat.parse(requestBody.get("end_date"));
+
 
         // Save the Experience object
-        exprerienceRepo.save(
-                new Experience(
-                        requestBody.get("company_name"),
-                        requestBody.get("title"),
-                        requestBody.get("location"),
-                        startDate,
-                        endDate,
-                        user
-                )
-        );
+        if(requestBody.get("end_date")!=null && !requestBody.get("end_date").equals("")){
+            Date endDate = dateFormat.parse(requestBody.get("end_date"));
+            exprerienceRepo.save(
+                    new Experience(
+                            requestBody.get("company_name"),
+                            requestBody.get("title"),
+                            requestBody.get("location"),
+                            startDate,
+                            endDate,
+                            user
+                    )
+            );
+        }
+        else{
+            exprerienceRepo.save(
+                    new Experience(
+                            requestBody.get("company_name"),
+                            requestBody.get("title"),
+                            requestBody.get("location"),
+                            startDate,
+                            user
+                    )
+            );
+        }
+
     }
 
     public void updateExperience(long id,Map<String,String> requestBody) throws ParseException {
@@ -516,20 +532,37 @@ public class UserService implements UserDetailsService {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+        System.out.println("start date: "+requestBody.get("start_date"));
         // Parse the start date and end date strings into Date objects
         Date startDate = dateFormat.parse(requestBody.get("start_date"));
-        Date endDate = dateFormat.parse(requestBody.get("end_date"));
-        exprerienceRepo.save(
-                new Experience(
-                        Long.parseLong(requestBody.get("experience_id")),
-                        requestBody.get("company_name"),
-                        requestBody.get("title"),
-                        requestBody.get("location"),
-                        startDate,
-                        endDate,
-                        user
-                )
-        );
+
+        if(requestBody.get("end_date")!=null && !requestBody.get("end_date").equals("")){
+            Date endDate = dateFormat.parse(requestBody.get("end_date"));
+            exprerienceRepo.save(
+                    new Experience(
+                            Long.parseLong(requestBody.get("experience_id")),
+                            requestBody.get("company_name"),
+                            requestBody.get("title"),
+                            requestBody.get("location"),
+                            startDate,
+                            endDate,
+                            user
+                    )
+            );
+        }
+        else {
+            exprerienceRepo.save(
+                    new Experience(
+                            Long.parseLong(requestBody.get("experience_id")),
+                            requestBody.get("company_name"),
+                            requestBody.get("title"),
+                            requestBody.get("location"),
+                            startDate,
+                            user
+                    )
+            );
+        }
+
     }
 
     public void deleteExp(long experienceId) {
@@ -538,25 +571,47 @@ public class UserService implements UserDetailsService {
 
     public void addEdu(long id,Map<String,String> requestBody) throws ParseException{
         User user=findUserById(id);
-        Education education=new Education(
-                requestBody.get("school_name"),requestBody.get("degree"),
-                requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
-                new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
-        );
-        educationRepo.save(
-          education
-        );
+        if(requestBody.get("end_date")!=null && !requestBody.get("end_date").equals("")){
+            educationRepo.save(
+                    new Education(
+                            requestBody.get("school_name"),requestBody.get("degree"),
+                            requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
+                            new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
+                    )
+            );
+        }
+        else{
+            educationRepo.save(
+                    new Education(
+                            requestBody.get("school_name"),requestBody.get("degree"),
+                            requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),user
+                    )
+            );
+        }
 
     }
     public void updateEdu(long id, Map<String, String> requestBody) throws ParseException {
         User user=findUserById(id);
-        educationRepo.save(
-                new Education(
-                        Long.parseLong(requestBody.get("education_id")),requestBody.get("school_name"),requestBody.get("degree"),
-                        requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
-                        new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
-                )
-        );
+        System.out.println("start date: "+requestBody.get("start_date"));
+        System.out.println("end_date: "+requestBody.get("end_date"));
+        if(requestBody.get("end_date")!=null && !requestBody.get("end_date").equals("")){
+            educationRepo.save(
+                    new Education(
+                            Long.parseLong(requestBody.get("education_id")),requestBody.get("school_name"),requestBody.get("degree"),
+                            requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),
+                            new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("end_date")),user
+                    )
+            );
+        }
+        else {
+            educationRepo.save(
+                    new Education(
+                            Long.parseLong(requestBody.get("education_id")),requestBody.get("school_name"),requestBody.get("degree"),
+                            requestBody.get("field_of_study"),new SimpleDateFormat("yyyy-MM-dd").parse(requestBody.get("start_date")),user
+                    )
+            );
+        }
+
     }
 
     public void deleteEdu(long education_id){
