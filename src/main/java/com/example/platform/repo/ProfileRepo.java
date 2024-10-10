@@ -15,6 +15,8 @@ import java.util.Optional;
 @Transactional
 public interface ProfileRepo extends JpaRepository<Profile,Long> {
 
+    @Query("select p from Profile p where p.profile_id = ?1")
+    Profile findProfileByProfile_id(long profile_id);
     @Query("delete Profile p where p.user=?1")
     void deleteProfileByUser(User user);
 

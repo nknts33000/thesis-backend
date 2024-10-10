@@ -65,6 +65,7 @@ public class UserService implements UserDetailsService {
 
     private final LikeRepo likeRepo;
     private final ShareRepo shareRepo;
+    private final SkillRepo skillRepo;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -74,7 +75,7 @@ public class UserService implements UserDetailsService {
                        ProfileRepo profileRepo, ConnectionRepo connectionRepo, PasswordEncoder passwordEncoder,
                        CommentRepo commentRepo,CompanyRepo companyRepo, AdvertRepo advertRepo,ExprerienceRepo exprerienceRepo,
                        EducationRepo educationRepo,CompanyRepository companyRepository,ResumeRepo resumeRepository,MessageRepo messageRepo,
-                       LikeRepo likeRepo,ShareRepo shareRepo,UserRepository userRepository){
+                       LikeRepo likeRepo,ShareRepo shareRepo,UserRepository userRepository,SkillRepo skillRepo){
         this.secretKeyConfig = secretKeyConfig;
         this.commentRepo=commentRepo;
         this.profileRepo = profileRepo;
@@ -92,8 +93,21 @@ public class UserService implements UserDetailsService {
         this.likeRepo=likeRepo;
         this.shareRepo=shareRepo;
         this.userRepository=userRepository;
+        this.skillRepo=skillRepo;
     }
 
+    public Profile addSkill(Map<String,String> skill_name, long profile_id) throws CustomException {
+        String s_name=skill_name.get("skill_name");
+        Profile profile=profileRepo.findProfileByProfile_id(profile_id);
+        if(skillRepo.getSkillFromSkillName(s_name,profile_id)!=null) throw new CustomException("Skill already added");
+        else{
+            skillRepo.save(
+                new Skill(s_name,profile)
+            );
+        }
+
+        return profile;
+    }
 
     public User findUserById(Long id){
         return userRepo.findUserById(id);
@@ -1032,4 +1046,11 @@ public class UserService implements UserDetailsService {
         userRepo.save(user);
     }
 
+    public Profile deleteSkill(long skillId) {
+        Skill skill_to_delete= skillRepo.getSkillFromSkillId(skillId);
+        long profile_id = skill_to_delete.getProfile().getProfile_id();
+        skillRepo.delete(skill_to_delete);
+        Profile profile= profileRepo.findProfileByProfile_id(profile_id);
+        return profile;
+    }
 }

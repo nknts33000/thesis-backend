@@ -637,4 +637,16 @@ public class UserController {
         userService.updateLocation(id,location);
     }
 
+    @ResponseBody
+    @PostMapping("/addSkill/{profile_id}")
+    public Profile addSkill(@RequestBody Map<String,String> skill_name,@PathVariable long profile_id) throws CustomException {
+        return userService.addSkill(skill_name,profile_id);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/deleteSkill/{skill_id}")
+    public Profile deleteSkill(@PathVariable long skill_id){
+        return userService.deleteSkill(skill_id);
+    }
+
 }

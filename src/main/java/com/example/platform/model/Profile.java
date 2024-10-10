@@ -1,9 +1,14 @@
 package com.example.platform.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +32,10 @@ public class Profile {
     @Column(length = 5000)
     private String summary;
     private String industry;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "profile")
+    private List<Skill> skills;
 
     public Profile() {
 

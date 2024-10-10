@@ -114,9 +114,6 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
     private List<Experience> experiences;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private List<Skill> skills;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
