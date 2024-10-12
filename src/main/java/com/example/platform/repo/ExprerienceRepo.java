@@ -15,4 +15,7 @@ public interface ExprerienceRepo extends JpaRepository<Experience,Long> {
 
     @Query("SELECT e FROM Experience e where e.user=?1")
     List<Experience> getExperiencesOfUser(User user);
+
+    @Query("select e from Experience e where e.experience_id=?1")
+    Experience findExperienceByExperience_id(long experience_id);
 }

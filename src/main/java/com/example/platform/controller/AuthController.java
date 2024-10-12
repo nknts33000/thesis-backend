@@ -11,22 +11,13 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.User;
 import com.example.platform.security.config.UserAuthenticationProvider;
 import com.example.platform.service.UserService;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Locale;
 
 @RestController
 @CrossOrigin
@@ -68,7 +59,7 @@ public class AuthController {
         userSearchingService.saveUser(
                 new UserES(
                     Long.toString(user.getId()),
-                    user.getFirstname(), user.getLastname(),new ArrayList<>()
+                    user.getFirstname(), user.getLastname(),new ArrayList<>(),new ArrayList<>(),new ArrayList<>()
                 )
         );
         UserAuthenticationProvider userAuthenticationProvider = new UserAuthenticationProvider();

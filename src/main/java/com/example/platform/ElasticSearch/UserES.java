@@ -11,6 +11,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(indexName = "userindex")
@@ -34,45 +35,19 @@ public class UserES {
     @Field(type = FieldType.Text, name = "location")
     private String location;  // Added location field
 
-    // Nested object for education
-    @Field(type = FieldType.Nested, name = "education")
-    private List<EducationES> education;
+    @Field(type = FieldType.Keyword, name = "education")
+    private List<String> education;
 
-    // Nested object for experience
-    @Field(type = FieldType.Nested, name = "experience")
-    private List<ExperienceES> experience;
+    @Field(type = FieldType.Keyword, name = "experience")
+    private List<String> experience;
 
-    // Getters and setters...
 
-    // Inner class for Education
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    public static class EducationES {
-        @Field(type = FieldType.Text, name = "schoolName")
-        private String schoolName;
-
-        @Field(type = FieldType.Text, name = "fieldOfStudy")
-        private String fieldOfStudy;
-
-        // Getters and setters...
+    public UserES(String id, String firstname, String lastname, ArrayList<String> skills, ArrayList<String> education, ArrayList<String> experience) {
+        this.id=id;
+        this.firstname=firstname;
+        this.lastname=lastname;
+        this.skills=skills;
+        this.education=education;
+        this.experience=experience;
     }
-
-    // Inner class for Experience
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    public static class ExperienceES {
-        @Field(type = FieldType.Text, name = "companyName")
-        private String companyName;
-
-        @Field(type = FieldType.Text, name = "jobTitle")
-        private String jobTitle;
-
-        // Getters and setters...
-    }
-
-
 }

@@ -523,9 +523,9 @@ public class UserService implements UserDetailsService {
             Date endDate = dateFormat.parse(requestBody.get("end_date"));
             exprerienceRepo.save(
                     new Experience(
-                            requestBody.get("company_name"),
-                            requestBody.get("title"),
-                            requestBody.get("location"),
+                            requestBody.get("company_name").trim(),
+                            requestBody.get("title").trim(),
+                            requestBody.get("location").trim(),
                             startDate,
                             endDate,
                             user
@@ -535,14 +535,18 @@ public class UserService implements UserDetailsService {
         else{
             exprerienceRepo.save(
                     new Experience(
-                            requestBody.get("company_name"),
-                            requestBody.get("title"),
-                            requestBody.get("location"),
+                            requestBody.get("company_name").trim(),
+                            requestBody.get("title").trim(),
+                            requestBody.get("location").trim(),
                             startDate,
                             user
                     )
             );
         }
+
+        UserES userES= userRepository.findById(Long.toString(id)).get();
+        userES.getExperience().add(requestBody.get("company_name").trim()+" "+requestBody.get("title").trim()); //add experience in elastic search document
+        userRepository.save(userES);
 
     }
 
@@ -551,18 +555,25 @@ public class UserService implements UserDetailsService {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        System.out.println("start date: "+requestBody.get("start_date"));
+        //System.out.println("start date: "+requestBody.get("start_date"));
         // Parse the start date and end date strings into Date objects
         Date startDate = dateFormat.parse(requestBody.get("start_date"));
+
+        UserES userES= userRepository.findById(Long.toString(id)).get();
+        //find experience before changing it
+        Experience previous= exprerienceRepo.findExperienceByExperience_id(Long.parseLong(requestBody.get("experience_id")));
+        userES.getExperience().remove(previous.getCompany_name().trim()+" "+previous.getTitle().trim());
+        userES.getExperience().add(requestBody.get("company_name").trim()+" "+requestBody.get("title").trim());//change experience in elastic search document
+        userRepository.save(userES);
 
         if(requestBody.get("end_date")!=null && !requestBody.get("end_date").equals("")){
             Date endDate = dateFormat.parse(requestBody.get("end_date"));
             exprerienceRepo.save(
                     new Experience(
                             Long.parseLong(requestBody.get("experience_id")),
-                            requestBody.get("company_name"),
-                            requestBody.get("title"),
-                            requestBody.get("location"),
+                            requestBody.get("company_name").trim(),
+                            requestBody.get("title").trim(),
+                            requestBody.get("location").trim(),
                             startDate,
                             endDate,
                             user
@@ -573,18 +584,24 @@ public class UserService implements UserDetailsService {
             exprerienceRepo.save(
                     new Experience(
                             Long.parseLong(requestBody.get("experience_id")),
-                            requestBody.get("company_name"),
-                            requestBody.get("title"),
-                            requestBody.get("location"),
+                            requestBody.get("company_name").trim(),
+                            requestBody.get("title").trim(),
+                            requestBody.get("location").trim(),
                             startDate,
                             user
                     )
             );
         }
-
     }
 
     public void deleteExp(long experienceId) {
+        Experience experience=exprerienceRepo.findExperienceByExperience_id(experienceId);
+
+        UserES userES= userRepository.findById(Long.toString(experience.getUser().getId())).get();
+
+        userES.getExperience().remove(experience.getCompany_name().trim()+" "+experience.getTitle().trim());
+        userRepository.save(userES);
+
         exprerienceRepo.deleteById(experienceId);
     }
 
@@ -608,11 +625,23 @@ public class UserService implements UserDetailsService {
             );
         }
 
+        UserES userES= userRepository.findById(Long.toString(id)).get();
+        userES.getExperience().add(requestBody.get("school_name").trim()+" "+requestBody.get("field_of_study").trim()); //add experience in elastic search document
+        userRepository.save(userES);
+
     }
     public void updateEdu(long id, Map<String, String> requestBody) throws ParseException {
         User user=findUserById(id);
-        System.out.println("start date: "+requestBody.get("start_date"));
-        System.out.println("end_date: "+requestBody.get("end_date"));
+        //System.out.println("start date: "+requestBody.get("start_date"));
+        //System.out.println("end_date: "+requestBody.get("end_date"));
+        UserES userES= userRepository.findById(Long.toString(id)).get();
+        //find experience before changing it
+        Education previous= educationRepo.findEducationByEducation_id(Long.parseLong(requestBody.get("education_id")));
+        userES.getExperience().remove(previous.getSchool_name().trim()+" "+previous.getField_of_study().trim());
+        userES.getExperience().add(requestBody.get("school_name").trim()+" "+requestBody.get("field_of_study").trim());//change education in elastic search document
+        userRepository.save(userES);
+
+
         if(requestBody.get("end_date")!=null && !requestBody.get("end_date").equals("")){
             educationRepo.save(
                     new Education(
@@ -634,6 +663,13 @@ public class UserService implements UserDetailsService {
     }
 
     public void deleteEdu(long education_id){
+        Education education=educationRepo.findEducationByEducation_id(education_id);
+
+        UserES userES= userRepository.findById(Long.toString(education.getUser().getId())).get();
+
+        userES.getExperience().remove(education.getSchool_name().trim()+" "+education.getField_of_study().trim());
+        userRepository.save(userES);
+
         educationRepo.deleteById(education_id);
     }
 

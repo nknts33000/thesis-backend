@@ -13,6 +13,9 @@ import java.util.List;
 @Transactional
 public interface EducationRepo extends JpaRepository<Education,Long> {
 
+    @Query("select e from Education e where e.education_id=?1")
+    Education findEducationByEducation_id(long education_id);
+
     @Query("select e from Education e where e.user=?1")
     List<Education> getEducationByUser(User user);
 }
