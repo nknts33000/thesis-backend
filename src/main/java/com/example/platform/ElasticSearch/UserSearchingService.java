@@ -105,7 +105,7 @@ public class UserSearchingService {
 //        return users;
 //    }
 
-    public List<UserES> searchRecommendedUsers(List<String> skills, List<String> education, List<String> experiences, String location, String firstname, String lastname) throws IOException {
+    public List<UserES> searchRecommendedUsers(List<String> skills, List<String> education, List<String> experiences, String location) throws IOException {
         // Create a SearchRequest with a boolean query to boost relevance based on matches in multiple fields
         SearchRequest searchRequest = SearchRequest.of(s -> s
                 .index("userindex")  // Index name for UserES
@@ -145,18 +145,6 @@ public class UserSearchingService {
                                         .match(mt -> mt
                                                 .field("location")  // Match on location
                                                 .query(location)
-                                        )
-                                )
-                                .should(s5 -> s5
-                                        .match(mt -> mt
-                                                .field("firstname")  // Match on firstname
-                                                .query(firstname)
-                                        )
-                                )
-                                .should(s6 -> s6
-                                        .match(mt -> mt
-                                                .field("lastname")  // Match on lastname
-                                                .query(lastname)
                                         )
                                 )
                                 .minimumShouldMatch("1")  // At least one of the fields should match

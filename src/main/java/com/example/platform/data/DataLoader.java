@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,7 +71,7 @@ public class DataLoader implements CommandLineRunner {
 //                        new UserES(
 //                                Long.toString(user.getId()),
 //                                user.getFirstname(),
-//                                user.getLastname()
+//                                user.getLastname(),new ArrayList<>(),new ArrayList<>(),new ArrayList<>()
 //                        )
 //                );
 //

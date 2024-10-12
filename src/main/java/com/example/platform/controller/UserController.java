@@ -7,6 +7,8 @@ import com.example.platform.exceptions.UserNotFoundException;
 import com.example.platform.model.*;
 import com.example.platform.security.config.UserAuthenticationProvider;
 import com.example.platform.service.UserService;
+import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -678,6 +680,34 @@ public class UserController {
         }
 
         return adverts;
+    }
+
+    @ResponseBody
+    @GetMapping("/getRecommendedUsers/{id}")
+    public List<User> getRecommendedUsers(@PathVariable long id) throws IOException {
+        User user=userService.findUserById(id);
+        String location=user.getLocation();
+        List<String> skill_names=new ArrayList<>();
+        for (Skill s:user.getProfile().getSkills()){
+            skill_names.add(s.getSkill_name());//skills
+        }
+        List<String> education= new ArrayList<>();
+        for(Education e:user.getEducation()){
+            education.add(e.getSchool_name().trim()+" "+e.getField_of_study().trim());
+        }
+        List<String> experience=new ArrayList<>();
+        for (Experience e:user.getExperiences()){
+            experience.add(e.getCompany_name().trim()+" "+e.getTitle());
+        }
+
+
+        List<UserES> usersES=userSearchingService.searchRecommendedUsers(skill_names,education,experience,location);
+        List<User> users=new ArrayList<>();
+        for(UserES ues:usersES){
+            if(Long.parseLong(ues.getId())!=id)users.add(userService.findUserById(Long.parseLong(ues.getId())));
+        }
+
+        return users;
     }
 
 }
