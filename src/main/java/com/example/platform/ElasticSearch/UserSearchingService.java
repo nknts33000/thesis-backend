@@ -105,41 +105,61 @@ public class UserSearchingService {
 //        return users;
 //    }
 
-
-    public List<UserES> searchRecommendedUsers(List<String> skills, List<String> education, List<String> experiences, String location) throws IOException {
-        // Create a SearchRequest to match skills, education, experiences, and location
+    public List<UserES> searchRecommendedUsers(List<String> skills, List<String> education, List<String> experiences, String location, String firstname, String lastname) throws IOException {
+        // Create a SearchRequest with a boolean query to boost relevance based on matches in multiple fields
         SearchRequest searchRequest = SearchRequest.of(s -> s
-                .index("useres")  // Index name for UserES
+                .index("userindex")  // Index name for UserES
                 .query(q -> q
                         .bool(b -> b
-                                // Match skills
-                                .should((Query) skills.stream()
-                                        .map(skill -> QueryBuilders.term(t -> t
-                                                .field("skills.keyword")
-                                                .value(skill)
-                                        )).toList()
+                                .should(s1 -> s1
+                                        .terms(t -> t
+                                                .field("skills.keyword")  // Match on skills
+                                                .terms(tq -> tq
+                                                        .value(skills.stream()
+                                                                .map(skill -> FieldValue.of(skill))
+                                                                .toList())
+                                                )
+                                        )
                                 )
-                                // Match education
-                                .should(education.stream()
-                                        .map(edu -> QueryBuilders.multiMatch(m -> m
-                                                .fields("education.schoolName", "education.fieldOfStudy")
-                                                .query(edu)
-                                        )).toList()
+                                .should(s2 -> s2
+                                        .terms(t -> t
+                                                .field("education.keyword")  // Match on education
+                                                .terms(tq -> tq
+                                                        .value(education.stream()
+                                                                .map(edu -> FieldValue.of(edu))
+                                                                .toList())
+                                                )
+                                        )
                                 )
-                                // Match experiences
-                                .should(experiences.stream()
-                                        .map(exp -> QueryBuilders.multiMatch(m -> m
-                                                .fields("experience.companyName", "experience.jobTitle")
-                                                .query(exp)
-                                        )).toList()
+                                .should(s3 -> s3
+                                        .terms(t -> t
+                                                .field("experience.keyword")  // Match on experience
+                                                .terms(tq -> tq
+                                                        .value(experiences.stream()
+                                                                .map(exp -> FieldValue.of(exp))
+                                                                .toList())
+                                                )
+                                        )
                                 )
-                                // Match location
-                                .must(m -> m
-                                        .match(t -> t
-                                                .field("location")
+                                .should(s4 -> s4
+                                        .match(mt -> mt
+                                                .field("location")  // Match on location
                                                 .query(location)
                                         )
                                 )
+                                .should(s5 -> s5
+                                        .match(mt -> mt
+                                                .field("firstname")  // Match on firstname
+                                                .query(firstname)
+                                        )
+                                )
+                                .should(s6 -> s6
+                                        .match(mt -> mt
+                                                .field("lastname")  // Match on lastname
+                                                .query(lastname)
+                                        )
+                                )
+                                .minimumShouldMatch("1")  // At least one of the fields should match
                         )
                 )
         );
@@ -155,7 +175,6 @@ public class UserSearchingService {
 
         return users;
     }
-
 
 
 }
