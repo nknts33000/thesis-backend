@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -64,11 +65,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody RegistrationDTO registrationDTO) throws UserExistsException, UserNotFoundException {
         User user=userService.addUser(registrationDTO);
-        //User user = userService.getUser(registrationDTO.getEmail());
         userSearchingService.saveUser(
                 new UserES(
                     Long.toString(user.getId()),
-                    user.getFirstname(), user.getLastname()
+                    user.getFirstname(), user.getLastname(),new ArrayList<>()
                 )
         );
         UserAuthenticationProvider userAuthenticationProvider = new UserAuthenticationProvider();
@@ -80,17 +80,5 @@ public class AuthController {
                 userAuthenticationProvider.createToken(user.getEmail())
         ));
     }
-
-//    @ResponseBody
-//    @PostMapping("/logout")
-//    public void signOut() {
-//        // Ideally, validate the token first, e.g., checking if it's expired
-//
-//        SecurityContextHolder.clearContext(); // Clears any authentication that is present
-//        // You can also invalidate the token here if using token blacklisting etc.
-//        System.out.println("logged out");
-//        //return ResponseEntity.noContent().build();
-//    }
-
 
 }

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.plaf.synth.SynthTreeUI;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,13 +53,6 @@ public class UserController {
 
         userService.update(registrationDTO.getEmail(),registrationDTO);
     }
-
-//    @ResponseBody
-//    @PutMapping("/update/password")
-//    public void UpdatePassword(@RequestBody User user) throws UserNotFoundException {
-//        userService.updateUserPassword(user.getEmail(),user);
-//    }
-
 
     @ResponseBody
     @PostMapping("/post")
@@ -647,6 +641,43 @@ public class UserController {
     @DeleteMapping("/deleteSkill/{skill_id}")
     public Profile deleteSkill(@PathVariable long skill_id){
         return userService.deleteSkill(skill_id);
+    }
+
+    @ResponseBody
+    @GetMapping("/getRecommendedAdverts/{id}")
+    public List<Advert> getRecommendedAdverts(@PathVariable long id) throws UserNotFoundException {
+        Profile profile= userService.getProfileOfUser(id);
+        List<Skill> skills=profile.getSkills();
+
+        List<String> skill_names=new ArrayList<>(); //first parameter
+        for(Skill s:skills){
+            skill_names.add(s.getSkill_name());
+        }
+
+        User user=userService.findUserById(id);
+        String location= user.getLocation(); //fourth parameter
+
+        List<Education> education= user.getEducation();
+        List<String> education_fields_of_studies=new ArrayList<>(); //second parameter
+        for(Education e:education){
+            education_fields_of_studies.add(e.getField_of_study());
+        }
+
+        List<Experience> experiences=user.getExperiences();
+        List<String> exp_titles=new ArrayList<>(); //third parameter
+        for(Experience e:experiences){
+            exp_titles.add(e.getTitle());
+        }
+
+        List<AdvertES> advertsES=advertService.searchAdvertsByProfile(skill_names,education_fields_of_studies,exp_titles,location);
+        List<Advert> adverts=new ArrayList<>();
+
+        for(AdvertES aes:advertsES){
+            Advert advert=userService.findAdvertByAdvertId(Integer.parseInt(aes.getId()));
+            adverts.add(advert);
+        }
+
+        return adverts;
     }
 
 }

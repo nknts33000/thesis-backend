@@ -18,7 +18,7 @@ public class Skill {
     @ManyToOne
     @JoinColumn(name = "profile_id",referencedColumnName = "profile_id")
     private Profile profile;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String skill_name;
 
     public Skill(){}

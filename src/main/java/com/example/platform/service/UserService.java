@@ -104,6 +104,11 @@ public class UserService implements UserDetailsService {
             skillRepo.save(
                 new Skill(s_name,profile)
             );
+            User user=findUserById(profile.getUser().getId());
+            UserES userES= userRepository.findById(Long.toString(user.getId())).get();
+            List<String> skills=userES.getSkills();
+            skills.add(s_name);
+            userRepository.save(userES);
         }
 
         return profile;
@@ -1051,6 +1056,10 @@ public class UserService implements UserDetailsService {
         long profile_id = skill_to_delete.getProfile().getProfile_id();
         skillRepo.delete(skill_to_delete);
         Profile profile= profileRepo.findProfileByProfile_id(profile_id);
+        UserES userES=userRepository.findById(Long.toString(profile.getUser().getId())).get();
+        List<String> skills=userES.getSkills();
+        skills.remove(skill_to_delete.getSkill_name());
+        userRepository.save(userES);
         return profile;
     }
 }

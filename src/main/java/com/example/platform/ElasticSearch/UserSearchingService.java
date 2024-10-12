@@ -1,14 +1,23 @@
 package com.example.platform.ElasticSearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.stereotype.Service;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 public class UserSearchingService {
@@ -18,6 +27,7 @@ public class UserSearchingService {
 
     @Autowired
     private ElasticsearchClient elasticsearchClient;
+
 
     // Save or update an AdvertES
     public UserES saveUser(UserES user) {
@@ -66,6 +76,86 @@ public class UserSearchingService {
             return List.of();
         }
     }
+
+//    public List<UserES> searchRecommendedUsers(List<String> skills, List<String> education, List<String> experiences, String location) throws IOException {
+//        // Create a SearchRequest with a terms query to match skills
+//        SearchRequest searchRequest = SearchRequest.of(s -> s
+//                .index("userindex")  // Index name for UserES
+//                .query(q -> q
+//                        .terms(t -> t
+//                                .field("skills.keyword")  // Use the field where skills are stored
+//                                .terms(tq -> tq
+//                                        .value(skills.stream()
+//                                                .map(skill -> FieldValue.of(skill))
+//                                                .toList())  // Convert each skill into FieldValue
+//                                )
+//                        )
+//                )
+//        );
+//
+//        // Execute search
+//        SearchResponse<UserES> response = elasticsearchClient.search(searchRequest, UserES.class);
+//
+//        // Process hits and map them to UserES objects
+//        List<UserES> users = new ArrayList<>();
+//        for (Hit<UserES> hit : response.hits().hits()) {
+//            users.add(hit.source());
+//        }
+//
+//        return users;
+//    }
+
+
+    public List<UserES> searchRecommendedUsers(List<String> skills, List<String> education, List<String> experiences, String location) throws IOException {
+        // Create a SearchRequest to match skills, education, experiences, and location
+        SearchRequest searchRequest = SearchRequest.of(s -> s
+                .index("useres")  // Index name for UserES
+                .query(q -> q
+                        .bool(b -> b
+                                // Match skills
+                                .should((Query) skills.stream()
+                                        .map(skill -> QueryBuilders.term(t -> t
+                                                .field("skills.keyword")
+                                                .value(skill)
+                                        )).toList()
+                                )
+                                // Match education
+                                .should(education.stream()
+                                        .map(edu -> QueryBuilders.multiMatch(m -> m
+                                                .fields("education.schoolName", "education.fieldOfStudy")
+                                                .query(edu)
+                                        )).toList()
+                                )
+                                // Match experiences
+                                .should(experiences.stream()
+                                        .map(exp -> QueryBuilders.multiMatch(m -> m
+                                                .fields("experience.companyName", "experience.jobTitle")
+                                                .query(exp)
+                                        )).toList()
+                                )
+                                // Match location
+                                .must(m -> m
+                                        .match(t -> t
+                                                .field("location")
+                                                .query(location)
+                                        )
+                                )
+                        )
+                )
+        );
+
+        // Execute search
+        SearchResponse<UserES> response = elasticsearchClient.search(searchRequest, UserES.class);
+
+        // Process hits and map them to UserES objects
+        List<UserES> users = new ArrayList<>();
+        for (Hit<UserES> hit : response.hits().hits()) {
+            users.add(hit.source());
+        }
+
+        return users;
+    }
+
 
 
 }
